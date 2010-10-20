@@ -1,8 +1,11 @@
 module mysdl.system;
 
 import mysdl.sdlapi;
+import mysdl.gfx;
+
 import std.string;
 import std.conv : to;
+import std.exception: enforce;
  
 debug import std.stdio;
 
@@ -38,6 +41,14 @@ public void initAudioVideo() {
     initSDL(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
 }
 
+public Surface SetVideoMode(int width, int height, int bitspp, Uint32 flags) {
+    return Surface(
+    //TODO better exception
+        enforce(SDL_SetVideoMode(width, height, bitspp, flags)),
+    //It's a Display
+        true );
+}
+
 /**
  Initialize SDL using the bitflags
  
@@ -45,7 +56,7 @@ public void initAudioVideo() {
  
  see_also: Subsystem
  */
-void initSDL(Uint32 code) {
+public void initSDL(Uint32 code) {
     debug writefln("init(%s)",code);
     if(SDL_Init(code) == -1) {
         debug writefln("Initiliziation failed :-(");
@@ -69,11 +80,13 @@ shared static ~this() {
 /* -------Subsystem------- */
 /**
  Instances of this struct represents the several SDL subsystems
+ 
+ NOT FINISHED
  */
 public struct Subsystem {
-    immutable int bitflag;
-    
-    package this(immutable int bitflag){
+    immutable uint bitflag;
+
+    package this(immutable uint bitflag){
         this.bitflag = bitflag;
     }
     

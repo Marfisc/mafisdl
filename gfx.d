@@ -2,7 +2,7 @@ module mysdl.gfx;
 
 import std.exception: enforce;
 import std.string: toStringz;
-import std.stdio: IOException;
+//import std.stdio: IOException;
 import mysdl.sdlapi;
 
 public struct Surface {
@@ -29,6 +29,12 @@ public struct Surface {
     
     void blitFrom(const Surface src) {
         src.blitTo(this);
+    }
+    
+    void update() 
+    in { assert(this.isDisplay); }
+    body {
+        SDL_UpdateRect(this.surptr, 0, 0, 0, 0);
     }
     
     void free() {
