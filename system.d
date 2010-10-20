@@ -1,4 +1,4 @@
-module mysdl.system;
+﻿module mysdl.system;
 
 import mysdl.sdlapi;
 import mysdl.gfx;
@@ -85,13 +85,25 @@ shared static ~this() {
  */
 public struct Subsystem {
     immutable uint bitflag;
-
+    
+    static immutable(Subsystem) audio = Subsystem(SDL_INIT_AUDIO);
+    static immutable(Subsystem) video = Subsystem(SDL_INIT_VIDEO);
+    static immutable(Subsystem) cdrom = Subsystem(SDL_INIT_CDROM);
+    static immutable(Subsystem) timer = Subsystem(SDL_INIT_TIMER);
+    static immutable(Subsystem) joystick = Subsystem(SDL_INIT_JOYSTICK);
+    
     package this(immutable uint bitflag){
         this.bitflag = bitflag;
     }
     
     @property
-    public bool activated() {
+    public bool activated() immutable {
         return SDL_WasInit(bitflag) != 0;
+    }
+    
+    public void activate() immutable {
+        if(SDL_InitSubSystem(bitflag) == -1) {
+            throw new SDLException;
+        }
     }
 }
