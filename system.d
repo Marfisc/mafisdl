@@ -79,28 +79,42 @@ shared static ~this() {
 
 /* -------Subsystem------- */
 /**
- Instances of this struct represents the several SDL subsystems
+ Instances of this struct represent the several SDL subsystems
  
  NOT FINISHED
  */
 public struct Subsystem {
     immutable uint bitflag;
     
+    /**
+     These represent a Subsystem.
+     
+     Use for example the activated property to check if a Subsystem is activated.
+     ----
+     if(Subsystem.audio.activated) { }
+     ----
+     */
     static immutable(Subsystem) audio = Subsystem(SDL_INIT_AUDIO);
-    static immutable(Subsystem) video = Subsystem(SDL_INIT_VIDEO);
-    static immutable(Subsystem) cdrom = Subsystem(SDL_INIT_CDROM);
-    static immutable(Subsystem) timer = Subsystem(SDL_INIT_TIMER);
-    static immutable(Subsystem) joystick = Subsystem(SDL_INIT_JOYSTICK);
+    static immutable(Subsystem) video = Subsystem(SDL_INIT_VIDEO); ///ditto
+    static immutable(Subsystem) cdrom = Subsystem(SDL_INIT_CDROM); ///ditto
+    static immutable(Subsystem) timer = Subsystem(SDL_INIT_TIMER); ///ditto
+    static immutable(Subsystem) joystick = Subsystem(SDL_INIT_JOYSTICK); ///ditto
     
     package this(immutable uint bitflag){
         this.bitflag = bitflag;
     }
     
+    /** Is this Subsystem activated? */
     @property
     public bool activated() immutable {
         return SDL_WasInit(bitflag) != 0;
     }
     
+    /** 
+     Activate this Subsystem.
+     
+     throws: SDLException on failure
+     */
     public void activate() immutable {
         if(SDL_InitSubSystem(bitflag) == -1) {
             throw new SDLException;
