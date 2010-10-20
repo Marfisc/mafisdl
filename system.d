@@ -41,13 +41,7 @@ public void initAudioVideo() {
     initSDL(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
 }
 
-public Surface SetVideoMode(int width, int height, int bitspp, Uint32 flags) {
-    return Surface(
-    //TODO better exception
-        enforce(SDL_SetVideoMode(width, height, bitspp, flags)),
-    //It's a Display
-        true );
-}
+
 
 /**
  Initialize SDL using the bitflags
