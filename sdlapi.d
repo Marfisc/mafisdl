@@ -21,6 +21,7 @@ export extern(C) {
     Uint32       SDL_MapRGB(const SDL_PixelFormat* fmt, Uint8 r, Uint8 g, Uint8 b);
     int          SDL_SetColorKey(SDL_Surface* surface, Uint32 flag, Uint32 key);
     SDL_Surface* SDL_SetVideoMode(int width, int height, int bitsperpixel, Uint32 flags);
+    int          SDL_PollEvent(SDL_Event* event);
     void         SDL_Quit(); 
     SDL_RWops*   SDL_RWFromFile(in char*,in char*);
     void         SDL_UpdateRect(SDL_Surface* screen, Sint32 x, Sint32 y, Sint32 w, Sint32 h);

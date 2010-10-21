@@ -26,6 +26,17 @@ public struct Surface {
         return this.surptr;
     }
     
+    @property
+    int width() const { return this.surptr.w; }
+    
+    @property
+    int height() const { return this.surptr.h; }
+    
+    @property
+    Rect rect() const {
+        return createRect(0, 0, cast(ushort) width, cast(ushort) height);
+    }
+    
     /* -----Painting---------- */
     
     void blitTo(Surface dst) const {
@@ -35,6 +46,12 @@ public struct Surface {
     void blitTo(Surface dst, Rect r, short x, short y) const {
         Rect dstrect = createRect(x, y, r.w, r.h);
         SDL_BlitSurface(this.surptr, &r, dst.surptr, &dstrect );
+    }
+    
+    void blitTo(Surface dst, short x, short y) const {
+        Rect dstrect = createRect(x, y, 0, 0); //cast(ushort)this.width, cast(ushort)this.height
+        //Rect srcrect = createRect(0, 0, cast(ushort)this.width, cast(ushort)this.height);
+        SDL_BlitSurface(this.surptr, null, dst.surptr, &dstrect);
     }
     
     void blitFrom(const Surface src) {
@@ -134,7 +151,7 @@ Rect createRect(short x, short y, ushort width, ushort height)
 body {
     SDL_Rect r;
     r.x = x;
-    r.x = y;
+    r.y = y;
     r.w = width;
     r.h = height;
     return r;
