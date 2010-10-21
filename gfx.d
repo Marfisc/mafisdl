@@ -4,6 +4,7 @@ import std.exception: enforce;
 import std.string: toStringz;
 //import std.stdio: IOException;
 import mysdl.sdlapi;
+import mysdl.system: SDLException;
 
 public struct Surface {
     private:
@@ -11,6 +12,8 @@ public struct Surface {
     bool isDisplay = false;
 
     public:
+    
+    /* ----- Access ------- */
     
     this(SDL_Surface* ptr, bool disp = false) {
         enum msg = "null SDL_Surface pointer in "~typeof(this).stringof;
@@ -22,6 +25,8 @@ public struct Surface {
     SDL_Surface* ptr() nothrow {
         return this.surptr;
     }
+    
+    /* -----Painting---------- */
     
     void blitTo(Surface dst) const {
         SDL_BlitSurface(this.surptr, null, dst.surptr, null);
@@ -38,7 +43,19 @@ public struct Surface {
     
     void blitFrom(const Surface src, Rect r, short x, short y) {
         src.blitTo(this, r, x, y);
-    }    
+    } 
+
+    void fillRect(Rect r, ubyte[3] color ...) {
+        SDL_FillRect(this.surptr, &r, 
+            this.mapRGB(color[0], color[1], color[2]));
+    }
+    
+    void setColorKey(ubyte[3] color ...) {
+        check(SDL_SetColorKey(this.surptr, SDL_SRCCOLORKEY,
+           this.mapRGB(color)));
+    }
+    
+    /* ------- Meta ------ */
     
     void update() 
     in { assert(this.isDisplay); }
@@ -58,8 +75,31 @@ public struct Surface {
         SDL_UpdateRect(this.surptr, x, y, width, height);
     }
     
+    void flip() 
+    in { assert(this.isDisplay); }
+    body {
+        check(SDL_Flip(this.surptr));
+    }
     
-    void free() {
+    uint mapRGB(ubyte[3] color ...) const {
+        return SDL_MapRGB(this.surptr.format, color[0], color[1], color[2]);
+    }
+    
+    void optimize(bool freeold = true) {
+        SDL_Surface* opt = SDL_DisplayFormat(this.surptr);
+        if(opt == null) {
+            throw new SDLException;
+        }
+        if(freeold) free();
+        this.surptr = opt;
+        
+    }
+    
+    void free() 
+    /* The surface returned by SetVideoMode is 
+       freed by SDL. */
+    in { assert(!this.isDisplay); } 
+    body {
         SDL_FreeSurface(this.surptr);
     }
     
@@ -68,7 +108,15 @@ public struct Surface {
         return Surface( enforce(
             SDL_LoadBMP(toStringz(filename)), new Exception("Failed to load Bitmap")
         ));
-    }   
+    }
+
+    /* ------ Utility -------- */
+    
+    void check(T)(T t) if(is(typeof( { T t; return t == -1;} ))) {
+        if(t == -1) {
+            throw new SDLException;
+        }
+    }
 }
 
 public Surface SetVideoMode(int width, int height, int bitspp, Uint32 flags) {
