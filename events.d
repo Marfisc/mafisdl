@@ -23,6 +23,7 @@ mixin aliasEvent!("ResizeEvent");
 mixin aliasEvent!("ExposeEvent");
 mixin aliasEvent!("UserEvent");
 mixin aliasEvent!("SysWMEvent");
+alias SDL_Event Event;
 
 //TODO alias SDL_*Event s
 
@@ -41,10 +42,15 @@ private struct EventListener {
     mixin event!"UserEvent";
     mixin event!"SysWMEvent";
     bool delegate() defaultdg;
+    bool delegate(Event) evdg;
     //TODO more Events
     
     void setDefault(typeof(defaultdg) dg) {
         defaultdg = dg;
+    }
+    
+    void setSDL_EventHandler(typeof(evdg) dg) {
+        evdg = dg;
     }
     
     void listen() {
@@ -94,6 +100,7 @@ private struct EventListener {
                     //TODO more, more !!!!!!!!!
                     default: break; //ignore
                 }
+                if(!dodg(evdg, event)) break eventloop;
             }
             if(!dodg(defaultdg)) break eventloop;
         }
@@ -110,7 +117,7 @@ private struct EventListener {
 }
 
 /**/
-enum Put : ubyte {
+public enum Put : ubyte {
     BREAK_ON_QUIT = 0b_00_00_00_01
     //BREAK_ON_ESC
     //NO_LOOP

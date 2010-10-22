@@ -156,3 +156,12 @@ body {
     r.h = height;
     return r;
 }
+
+Rect createRect(int[4] c ...) {
+    SDL_Rect r;
+    r.x = cast(short) c[0];
+    r.y = cast(short) c[1];
+    r.w = cast(ushort)c[2];
+    r.h = cast(ushort)c[3];
+    return r;
+}
