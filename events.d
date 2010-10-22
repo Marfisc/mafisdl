@@ -28,11 +28,18 @@ mixin aliasEvent!("SysWMEvent");
 
 private struct EventListener {
     mixin event!"QuitEvent";
+    mixin event!"ActiveEvent";
     mixin event!"KeyboardEvent";
     mixin event!"MouseMotionEvent";
     mixin event!"MouseButtonEvent";
-    mixin event!"JoyButtonEvent";
     mixin event!"JoyAxisEvent";
+    mixin event!"JoyBallEvent";
+    mixin event!"JoyHatEvent";    
+    mixin event!"JoyButtonEvent";
+    mixin event!"ResizeEvent";
+    mixin event!"ExposeEvent";
+    mixin event!"UserEvent";
+    mixin event!"SysWMEvent";
     bool delegate() defaultdg;
     //TODO more Events
     
@@ -48,6 +55,9 @@ private struct EventListener {
                     case SDL_QUIT: 
                         if(!dodg(handlerQuitEvent, event.quit)) break eventloop;
                         break; //switch statement
+                    case SDL_ACTIVEEVENT: 
+                        if(!dodg(handlerActiveEvent, event.active)) break eventloop;
+                        break; //switch statemen
                     case SDL_KEYDOWN: case SDL_KEYUP: 
                         if(!dodg(handlerKeyboardEvent, event.key)) break eventloop;
                         break; //switch statement
@@ -56,6 +66,30 @@ private struct EventListener {
                         break; //switch statement
                     case SDL_MOUSEBUTTONDOWN: case SDL_MOUSEBUTTONUP:
                         if(!dodg(handlerMouseButtonEvent, event.button)) break eventloop;
+                        break; //switch statement
+                    case SDL_JOYAXISMOTION: 
+                        if(!dodg(handlerJoyAxisEvent, event.jaxis)) break eventloop;
+                        break; //switch statement
+                    case SDL_JOYBALLMOTION: 
+                        if(!dodg(handlerJoyBallEvent, event.jball)) break eventloop;
+                        break; //switch statement
+                    case SDL_JOYHATMOTION: 
+                        if(!dodg(handlerJoyHatEvent, event.jhat)) break eventloop;
+                        break; //switch statement
+                    case SDL_JOYBUTTONDOWN: case SDL_JOYBUTTONUP: 
+                        if(!dodg(handlerJoyButtonEvent, event.jbutton)) break eventloop;
+                        break; //switch statement
+                    case SDL_VIDEOEXPOSE: 
+                        if(!dodg(handlerExposeEvent, event.expose)) break eventloop;
+                        break; //switch statement
+                    case SDL_VIDEORESIZE: 
+                        if(!dodg(handlerResizeEvent, event.resize)) break eventloop;
+                        break; //switch statement
+                    case SDL_USEREVENT: 
+                        if(!dodg(handlerUserEvent, event.user)) break eventloop;
+                        break; //switch statement
+                    case SDL_SYSWMEVENT:
+                        if(!dodg(handlerSysWMEvent, event.syswm)) break eventloop;
                         break; //switch statement
                     //TODO more, more !!!!!!!!!
                     default: break; //ignore
@@ -75,22 +109,35 @@ private struct EventListener {
     }
 }
 
+/**/
+enum Put : ubyte {
+    BREAK_ON_QUIT = 0b_00_00_00_01
+    //BREAK_ON_ESC
+    //NO_LOOP
+}
+
 //TODO template constraint
 public void listen(T...)(T ts) {
     EventListener listener;
     foreach(t; ts) {
-        alias ParameterTypeTuple!(t) PTT;
-        static if(PTT.length == 1) {
-            mixin("listener.set"~PTT[0].stringof~"Handler(t);");
-        } else static if(PTT.length == 0) {
-            listener.setDefault(t);
+        static if (is(typeof(t) == Put)) {
+            if (!! (t & Put.BREAK_ON_QUIT)) {
+                listener.setSDL_QuitEventHandler( (QuitEvent){return false;} );
+            }
         } else {
-            static assert(0);
+            alias ParameterTypeTuple!(t) PTT;
+            static if(PTT.length == 1) {
+                mixin("listener.set"~PTT[0].stringof~"Handler(t);");
+            } else static if(PTT.length == 0) {
+                listener.setDefault(t);
+            } else {
+                static assert(0);
+            }
         }
     }
     listener.listen();
 }
 
-public mixin template aliasEvent(string ev) {
+private mixin template aliasEvent(string ev) {
     mixin("alias SDL_"~ev~" "~ev~";");
 }
