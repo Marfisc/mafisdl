@@ -27,6 +27,10 @@ alias SDL_Event Event;
 
 //TODO alias SDL_*Event s
 
+/*
+ Internal structure for holding delegates 
+ and giving them logic for listen
+ */
 private struct EventListener {
     mixin event!"QuitEvent";
     mixin event!"ActiveEvent";
@@ -116,7 +120,18 @@ private struct EventListener {
     }
 }
 
-/**/
+/**
+ This enum can be used to give listen preimplemented functionalities.
+ 
+ They can OR'ed together and can be used together with normal delegates.
+ The name put is subject to change. If somebody has a better name, 
+ please contact me.
+ ----
+ listen(Put.BREAK_ON_QUIT);
+ ----
+ 
+ see_also: listen
+ */
 public enum Put : ubyte {
     BREAK_ON_QUIT = 0b_00_00_00_01
     //BREAK_ON_ESC
@@ -124,6 +139,25 @@ public enum Put : ubyte {
 }
 
 //TODO template constraint
+/**
+ With this function you can listen for SDL's events using delegates.
+ 
+ It has a std.concurrency.recieve()-like structure. It also allows for 
+ listening for any event. All delegates have have to be bool delegates.
+ This bool indicates if to stay in the event loop.
+ ----
+ listen( (KeyboardEvent){writeln("KeyboardEvent!"); return true;},
+         (Event){ /+Do something on any Event after the possible
+                    specialized handling.+/} );
+ ---- 
+ 
+ For the future it's planned to also allow void delegates which would 
+ never let listen break.
+ 
+ bugs: It has no template constraint yet.
+ 
+ see_also: Put
+ */
 public void listen(T...)(T ts) {
     EventListener listener;
     foreach(t; ts) {
