@@ -25,8 +25,6 @@ mixin aliasEvent!("UserEvent");
 mixin aliasEvent!("SysWMEvent");
 alias SDL_Event Event;
 
-//TODO alias SDL_*Event s
-
 /*
  Internal structure for holding delegates 
  and giving them logic for listen

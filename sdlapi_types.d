@@ -280,7 +280,40 @@ union SDL_Event
     SDL_UserEvent user;
     SDL_SysWMEvent syswm;
 }
+/*-------Mouse--------*/
+// SDL_mouse.h
+struct WMcursor {}
 
+struct SDL_Cursor
+{
+    SDL_Rect area;
+    Sint16 hot_x, hot_y;
+    Uint8 *data;
+    Uint8 *mask;
+    Uint8 *save[2];
+    WMcursor *wm_cursor;
+}
+
+enum : Uint8
+{
+    SDL_BUTTON_LEFT         = 1,
+    SDL_BUTTON_MIDDLE       = 2,
+    SDL_BUTTON_RIGHT        = 3,
+    SDL_BUTTON_WHEELUP      = 4,
+    SDL_BUTTON_WHEELDOWN    = 5,
+    SDL_BUTTON_X1           = 6,
+    SDL_BUTTON_X2           = 7,
+    SDL_BUTTON_LMASK        = 1 << (SDL_BUTTON_LEFT-1),
+    SDL_BUTTON_MMASK        = 1 << (SDL_BUTTON_MIDDLE-1),
+    SDL_BUTTON_RMASK        = 1 << (SDL_BUTTON_RIGHT-1),
+    SDL_BUTTON_X1MASK       = 1 << (SDL_BUTTON_X1-1),
+    SDL_BUTTON_X2MASK       = 1 << (SDL_BUTTON_X2-1),
+}
+
+Uint8 SDL_BUTTON(Uint8 x)
+{
+    return cast(Uint8)(1 << (x - 1));
+}
 /*-------Keyboard-----*/
 // SDL_keyboard.h
 struct SDL_keysym
