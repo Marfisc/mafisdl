@@ -108,7 +108,9 @@ private struct EventListener {
 
     private mixin template event (string ev) {
         mixin("bool delegate(SDL_"~ev~") handler"~ev~";");
-        mixin("void setSDL_"~ev~"Handler(bool delegate(SDL_"~ev~") d) { this.handler"~ev~" = d; }");
+        mixin(
+        "void setSDL_"~ev~"Handler(bool delegate(SDL_"~ev~") d)"~
+        " in{assert(this.handler"~ev~"==null);}body{ this.handler"~ev~" = d; }");
     }
     
     private bool dodg(DG, P...)(DG dg, P p) {
@@ -156,18 +158,40 @@ public enum Put : ubyte {
  */
 public void listen(T...)(T ts) {
     EventListener listener;
+    //For each parameter...
     foreach(t; ts) {
+        //if it's from Put enum...
         static if (is(typeof(t) == Put)) {
+            //use predifend behaviour
             if (!! (t & Put.BREAK_ON_QUIT)) {
                 listener.setSDL_QuitEventHandler( (QuitEvent){return false;} );
             }
+        //hopefully a delegate
         } else {
-            alias ParameterTypeTuple!(t) PTT;
-            static if(PTT.length == 1) {
-                mixin("listener.set"~PTT[0].stringof~"Handler(t);");
-            } else static if(PTT.length == 0) {
-                listener.setDefault(t);
+            //what are the parameters of t
+            alias ParameterTypeTuple!(t) PTT;   
+            //if t is a bool delegate
+            static if(is(ReturnType!t == bool)) {
+                //t is our delegate to use
+                alias t dg;
+            //at a void delegate
+            } else static if (is(ReturnType!t == void)){
+                //a wrapper is our delegate
+                auto wrapper = (PTT p){t(p); return true;};
+                alias wrapper dg;
             } else {
+                //otherwise something went wrong
+                static assert(0);
+            }
+            //one parameter?
+            static if(PTT.length == 1) {
+                //put it into the eventlistener
+                mixin("listener.set"~PTT[0].stringof~"Handler(dg);");
+            } else static if(PTT.length == 0) {
+                //without parameters it's the so called default delegate
+                listener.setDefault(dg);
+            } else {
+                //otherwise something went wrong
                 static assert(0);
             }
         }
