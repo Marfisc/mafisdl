@@ -4,7 +4,6 @@ import std.c.stdio;
 public import mysdl.sdlapi_keys;
 
 /* -------Basic----------*/
-//TODO think about this
 alias int Sint32;
 alias uint Uint32;
 alias short Sint16;

@@ -54,7 +54,6 @@ public void initSDL(Uint32 code) {
     debug writefln("init(%s)",code);
     if(SDL_Init(code) == -1) {
         debug writefln("Initiliziation failed :-(");
-        //TODO put sdl_GetError here
         throw new SDLException("Initialization failed");
     } else {
         debug writefln("Initialized");

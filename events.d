@@ -45,7 +45,6 @@ private struct EventListener {
     mixin event!"SysWMEvent";
     bool delegate() defaultdg;
     bool delegate(Event) evdg;
-    //TODO more Events
     
     void setDefault(typeof(defaultdg) dg) {
         defaultdg = dg;
@@ -99,7 +98,6 @@ private struct EventListener {
                     case SDL_SYSWMEVENT:
                         if(!dodg(handlerSysWMEvent, event.syswm)) break eventloop;
                         break; //switch statement
-                    //TODO more, more !!!!!!!!!
                     default: break; //ignore
                 }
                 if(!dodg(evdg, event)) break eventloop;
