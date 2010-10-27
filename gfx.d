@@ -136,6 +136,28 @@ public struct Surface {
     }
 }
 
+
+
+alias SDL_SWSURFACE     SWSURFACE;
+alias SDL_HWSURFACE     HWSURFACE;
+alias SDL_ASYNCBLIT     ASYNCBLIT;
+alias SDL_ANYFORMAT     ANYFORMAT;
+alias SDL_HWPALETTE     HWPALETTE;
+alias SDL_DOUBLEBUF     DOUBLEBUF;
+alias SDL_FULLSCREEN    FULLSCREEN;
+alias SDL_OPENGL        OPENGL;
+alias SDL_OPENGLBLIT    OPENGLBLIT;
+alias SDL_RESIZABLE     RESIZABLE;
+alias SDL_NOFRAME       NOFRAME;
+alias SDL_HWACCEL       HWACCEL;
+alias SDL_SRCCOLORKEY   SRCCOLORKEY;
+alias SDL_RLEACCELOK    RLEACCELOK;
+alias SDL_RLEACCEL      RLEACCEL;
+alias SDL_SRCALPHA      SRCALPHA;
+alias SDL_PREALLOC      PREALLOC;
+
+
+
 public Surface SetVideoMode(int width, int height, int bitspp, Uint32 flags) {
     return Surface(
     //TODO better exception

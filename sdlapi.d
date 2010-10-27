@@ -15,6 +15,7 @@ export extern(C) {
     int          SDL_Flip(SDL_Surface* screen);
     void         SDL_FreeSurface(SDL_Surface* surface);
     char*        SDL_GetError();    
+    Uint8        SDL_GetMouseState(int *x, int *y);
     int          SDL_Init(Uint32 flags);
     int          SDL_InitSubSystem (Uint32 flags);
     SDL_Surface* SDL_LoadBMP_RW(SDL_RWops*,int);
@@ -37,4 +38,8 @@ SDL_Surface* SDL_LoadBMP(in char* file)
     return SDL_LoadBMP_RW(SDL_RWFromFile(file, "rb"), 1);
 }
 
+Uint8 SDL_BUTTON(Uint8 x)
+{
+    return cast(Uint8)(1 << (x - 1));
+}
 
