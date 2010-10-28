@@ -16,6 +16,7 @@ export extern(C) {
     void         SDL_FreeSurface(SDL_Surface* surface);
     char*        SDL_GetError();    
     Uint8        SDL_GetMouseState(int *x, int *y);
+    Uint8*       SDL_GetKeyState(int *numkeys);    
     int          SDL_Init(Uint32 flags);
     int          SDL_InitSubSystem (Uint32 flags);
     SDL_Surface* SDL_LoadBMP_RW(SDL_RWops*,int);
