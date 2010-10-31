@@ -1,5 +1,7 @@
 module mysdl.sdlapi_key;
 
+import mysdl.sdlapi_types;
+
 // SDL_keysym.h
 alias int SDLKey;
 enum
@@ -258,4 +260,20 @@ enum
     /* Add any other keys here */
 
     SDLK_LAST
+}
+
+// SDL_joystick.h
+struct SDL_Joystick {}
+
+enum : Uint8
+{
+    SDL_HAT_CENTERED            = 0x00,
+    SDL_HAT_UP                  = 0x01,
+    SDL_HAT_RIGHT               = 0x02,
+    SDL_HAT_DOWN                = 0x04,
+    SDL_HAT_LEFT                = 0x08,
+    SDL_HAT_RIGHTUP             = SDL_HAT_RIGHT | SDL_HAT_UP,
+    SDL_HAT_RIGHTDOWN           = SDL_HAT_RIGHT | SDL_HAT_DOWN,
+    SDL_HAT_LEFTUP              = SDL_HAT_LEFT | SDL_HAT_UP,
+    SDL_HAT_LEFTDOWN            = SDL_HAT_LEFT | SDL_HAT_DOWN,
 }

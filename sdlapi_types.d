@@ -280,6 +280,26 @@ union SDL_Event
     SDL_UserEvent user;
     SDL_SysWMEvent syswm;
 }
+
+alias int SDL_eventaction;
+enum
+{
+    SDL_ADDEVENT,
+    SDL_PEEKEVENT,
+    SDL_GETEVENT
+}
+
+extern(C) alias int function(in SDL_Event *event) SDL_EventFilter;
+
+enum
+{
+    SDL_QUERY           = -1,
+    SDL_IGNORE          = 0,
+    SDL_DISABLE         = 0,
+    SDL_ENABLE          = 1,
+}
+
+
 /*-------Mouse--------*/
 // SDL_mouse.h
 struct WMcursor {}

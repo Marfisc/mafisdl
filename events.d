@@ -8,6 +8,8 @@ alias SDL_KEYDOWN KEYDOWN;
 alias SDL_KEYUP   KEYUP;
 alias SDL_MOUSEBUTTONDOWN MOUSEDOWN;
 alias SDL_MOUSEBUTTONUP   MOUSEUP;
+alias SDL_JOYBUTTONDOWN  JOYBUTTONDOWN;
+alias SDL_JOYBUTTONUP    JOYBUTTONUP;
 
 //These are all (documented) Events (21.10.10)
 mixin aliasEvent!("QuitEvent");
