@@ -158,7 +158,7 @@ alias SDL_PREALLOC      PREALLOC;
 
 
 
-public Surface SetVideoMode(int width, int height, int bitspp, Uint32 flags) {
+public Surface setVideoMode(int width, int height, int bitspp, Uint32 flags) {
     return Surface(
     //TODO better exception
         enforce(SDL_SetVideoMode(width, height, bitspp, flags)),
