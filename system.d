@@ -62,6 +62,13 @@ public void initSDL(Uint32 code) {
     }
 }
 
+void delay(long ms)
+in {
+    assert(ms > 0);
+} body {
+    SDL_Delay(cast(uint) ms);
+}
+
 
 shared static ~this() {
     if( /*activated && */ SDL_WasInit(SDL_INIT_EVERYTHING) ) {
