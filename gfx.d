@@ -2,6 +2,7 @@ module mysdl.gfx;
 
 import std.exception: enforce;
 import std.string: toStringz;
+import std.math: floor;
 //import std.stdio: IOException;
 import mysdl.sdlapi;
 import mysdl.system: SDLException;
@@ -186,4 +187,32 @@ Rect createRect(int[4] c ...) {
     r.w = cast(ushort)c[2];
     r.h = cast(ushort)c[3];
     return r;
+}
+
+public struct Clip {
+    Surface src;
+    Rect r;
+    
+    void blitTo(Surface dst, short x, short y) {
+        src.blitTo(dst, r, x, y);
+    }
+}
+
+public struct Clipper {
+    Surface src;
+    int width, height;
+    
+    this(Surface s, int w, int h) {
+        src = s;
+        width = w;
+        height = h;
+    }
+    
+    Clip opIndex(int index) {
+        int clipsPerLine = cast(int) floor((0.0 + src.width) / width);
+        int x = index % clipsPerLine;
+        int y = (index - x) / clipsPerLine;
+        auto r = createRect(x * width, y * height, width, height);
+        return Clip(src, r);
+    }
 }
