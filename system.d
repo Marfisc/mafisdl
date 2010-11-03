@@ -69,6 +69,8 @@ in {
     SDL_Delay(cast(uint) ms);
 }
 
+alias SDL_GetTicks getTicks;
+
 
 shared static ~this() {
     if( /*activated && */ SDL_WasInit(SDL_INIT_EVERYTHING) ) {
