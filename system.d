@@ -1,7 +1,7 @@
 ﻿module mysdl.system;
 
 import mysdl.sdlapi;
-import mysdl.gfx;
+import mysdl.video;
 
 import std.string;
 import std.conv : to;

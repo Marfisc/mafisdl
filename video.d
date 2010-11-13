@@ -1,4 +1,4 @@
-module mysdl.gfx;
+module mysdl.video;
 
 import std.exception: enforce;
 import std.string: toStringz;
