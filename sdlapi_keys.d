@@ -1,4 +1,4 @@
-module mysdl.sdlapi_key;
+module mysdl.sdlapi_keys;
 
 import mysdl.sdlapi_types;
 
