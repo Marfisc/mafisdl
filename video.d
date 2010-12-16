@@ -193,6 +193,9 @@ public struct Clip {
     Surface src;
     Rect r;
     
+    @property int width() { return r.w; }
+    @property int height() { return r.h; }
+    
     void blitTo(Surface dst, short x, short y) {
         src.blitTo(dst, r, x, y);
     }
@@ -208,6 +211,16 @@ public struct Clipper {
         height = h;
     }
     
+    @property int count() {
+        int clipsPerLine = cast(int) floor((0.0 + src.width) / width);
+        int clipsPerColumn = cast(int) floor((0.0 + src.height) / height);
+        return clipsPerLine * clipsPerColumn;
+    }
+    
+    int opDollar(){
+        return count;
+    }
+    
     Clip opIndex(int index) {
         int clipsPerLine = cast(int) floor((0.0 + src.width) / width);
         int x = index % clipsPerLine;
@@ -215,4 +228,18 @@ public struct Clipper {
         auto r = createRect(x * width, y * height, width, height);
         return Clip(src, r);
     }
+    
+    Clip[] opSlice() {
+        return opSlice(0, opDollar());
+    }
+    
+    Clip[] opSlice(int st, int end) {
+        Clip[] list;
+        foreach(i; st .. end) {
+            list ~= opIndex(i);
+        }
+        return list;
+    }
+    
+    
 }
