@@ -204,11 +204,13 @@ public struct Clip {
 public struct Clipper {
     Surface src;
     int width, height;
+    private immutable int clipsPerLine;
     
     this(Surface s, int w, int h) {
         src = s;
         width = w;
         height = h;
+        clipsPerLine = cast(int) floor((0.0 + src.width) / width);        
     }
     
     @property int count() {
@@ -222,7 +224,6 @@ public struct Clipper {
     }
     
     Clip opIndex(int index) {
-        int clipsPerLine = cast(int) floor((0.0 + src.width) / width);
         int x = index % clipsPerLine;
         int y = (index - x) / clipsPerLine;
         auto r = createRect(x * width, y * height, width, height);
