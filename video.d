@@ -124,7 +124,7 @@ public struct Surface {
     static Surface loadBMP(string filename) {
         //TODO find some better exception type
         return Surface( enforce(
-            SDL_LoadBMP(toStringz(filename)), new Exception("Failed to load Bitmap")
+            SDL_LoadBMP(toStringz(filename)), new SDLException("Failed to load Bitmap")
         ));
     }
 

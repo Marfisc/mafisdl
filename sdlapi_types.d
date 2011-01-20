@@ -377,10 +377,14 @@ struct SDL_RWops
 {
     extern(C)
     {
-        int (*seek)(SDL_RWops *context, int offset, int whence);
+/+        int (*seek)(SDL_RWops *context, int offset, int whence);
         int (*read)(SDL_RWops *context, void *ptr, int size, int maxnum);
         int (*write)(SDL_RWops *context, in void *ptr, int size, int num);
-        int (*close)(SDL_RWops *context);
+        int (*close)(SDL_RWops *context); +/
+        int function(SDL_RWops *context, int offset, int whence) seek;
+        int function(SDL_RWops *context, void *ptr, int size, int maxnum) read;
+        int function(SDL_RWops *context, in void *ptr, int size, int num) write;
+        int function(SDL_RWops *context) close; 
     }
 
     Uint32 type;
