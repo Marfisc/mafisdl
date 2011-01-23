@@ -125,7 +125,9 @@ private struct EventListener {
  
  They can OR'ed together and can be used together with normal delegates.
  The name put is subject to change. If somebody has a better name, 
- please contact me.
+ please contact me. 
+ 
+ $(B Please use the alias below)
  ----
  listen(Put.BREAK_ON_QUIT);
  ----
@@ -137,6 +139,10 @@ public enum Put : ubyte {
     //BREAK_ON_ESC
     //NO_LOOP
 }
+/**
+ Please use this instead of Put. It's only to make up a type.
+ */
+alias Put.BREAK_ON_QUIT BreakOnQuit;
 
 //TODO template constraint
 /**
