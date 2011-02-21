@@ -4,7 +4,6 @@
 module mysdl.sdlapi;
 
 public import derelict.sdl.sdl;
-public import mysdl.sdlapi_types;
 
 version(none):
 //pragma(lib,r"D:\d\mysdl_test\SDL.lib");

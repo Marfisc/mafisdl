@@ -52,6 +52,11 @@ public void initAudioVideo() {
  */
 public void initSDL(Uint32 code) {
     debug writefln("init(%s)",code);
+    
+    if(!DerelictSDL.isLoaded) {
+        DerelictSDL.load();
+    }
+    
     if(SDL_Init(code) == -1) {
         debug writefln("Initiliziation failed :-(");
         throw new SDLException("Initialization failed");
