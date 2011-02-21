@@ -1,7 +1,9 @@
 module mysdl.sdlapi_keys;
 
+public import derelict.sdl.sdl;
 import mysdl.sdlapi_types;
 
+version(none):
 // SDL_keysym.h
 alias int SDLKey;
 enum

@@ -1,8 +1,10 @@
 module mysdl.sdlapi_types;
 
 import std.c.stdio;
+public import derelict.sdl.sdl;
 public import mysdl.sdlapi_keys;
 
+version(none):
 /* -------Basic----------*/
 alias int Sint32;
 alias uint Uint32;

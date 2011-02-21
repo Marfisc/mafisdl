@@ -40,26 +40,26 @@ public struct Surface {
     
     /* -----Painting---------- */
     
-    void blitTo(Surface dst) const {
+    void blitTo(Surface dst) {
         SDL_BlitSurface(this.surptr, null, dst.surptr, null);
     }
     
-    void blitTo(Surface dst, Rect r, short x, short y) const {
+    void blitTo(Surface dst, Rect r, short x, short y) {
         Rect dstrect = createRect(x, y, r.w, r.h);
         SDL_BlitSurface(this.surptr, &r, dst.surptr, &dstrect );
     }
     
-    void blitTo(Surface dst, short x, short y) const {
+    void blitTo(Surface dst, short x, short y) {
         Rect dstrect = createRect(x, y, 0, 0); //cast(ushort)this.width, cast(ushort)this.height
         //Rect srcrect = createRect(0, 0, cast(ushort)this.width, cast(ushort)this.height);
         SDL_BlitSurface(this.surptr, null, dst.surptr, &dstrect);
     }
     
-    void blitFrom(const Surface src) {
+    void blitFrom(Surface src) {
         src.blitTo(this);
     }
     
-    void blitFrom(const Surface src, Rect r, short x, short y) {
+    void blitFrom(Surface src, Rect r, short x, short y) {
         src.blitTo(this, r, x, y);
     } 
 
