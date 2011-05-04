@@ -4,12 +4,12 @@ import mysdl.sdlapi;
 
 import std.traits;
 
-alias SDL_KEYDOWN KEYDOWN;
-alias SDL_KEYUP   KEYUP;
-alias SDL_MOUSEBUTTONDOWN MOUSEDOWN;
-alias SDL_MOUSEBUTTONUP   MOUSEUP;
-alias SDL_JOYBUTTONDOWN  JOYBUTTONDOWN;
-alias SDL_JOYBUTTONUP    JOYBUTTONUP;
+alias SDL_KEYDOWN KeyDown;
+alias SDL_KEYUP   KeyUp;
+alias SDL_MOUSEBUTTONDOWN MouseDown;
+alias SDL_MOUSEBUTTONUP   MouseUP;
+alias SDL_JOYBUTTONDOWN  JoyButtonDown;
+alias SDL_JOYBUTTONUP    JoyButtonUp;
 
 //These are all (documented) Events (21.10.10)
 mixin aliasEvent!("QuitEvent");
@@ -120,27 +120,21 @@ private struct EventListener {
     }
 }
 
-/**
- This enum can be used to give listen preimplemented functionalities.
- 
- They can OR'ed together and can be used together with normal delegates.
- The name put is subject to change. If somebody has a better name, 
- please contact me. 
- 
- $(B Please use the alias below)
- ----
- listen(Put.BREAK_ON_QUIT);
- ----
- 
- see_also: listen
- */
-public enum Put : ubyte {
+private enum Put : ubyte {
     BREAK_ON_QUIT = 0b_00_00_00_01
     //BREAK_ON_ESC
     //NO_LOOP
 }
 /**
- Please use this instead of Put. It's only to make up a type.
+ These constants can be used to give listen preimplemented functionalities.
+ 
+ They can OR'ed together and can be used together with normal delegates.
+ 
+ ----
+ listen(BreakOnQuit);
+ ----
+ 
+ see_also: listen
  */
 alias Put.BREAK_ON_QUIT BreakOnQuit;
 
@@ -157,12 +151,7 @@ alias Put.BREAK_ON_QUIT BreakOnQuit;
                     specialized handling.+/} );
  ---- 
  
- For the future it's planned to also allow void delegates which would 
- never let listen break.
- 
  bugs: It has no template constraint yet.
- 
- see_also: Put
  */
 public void listen(T...)(T ts) {
     EventListener listener;

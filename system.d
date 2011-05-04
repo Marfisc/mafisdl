@@ -33,7 +33,7 @@ public void initSDL() {
 }
 
 /**
- Init Audio and Video
+ Initialize Audio and Video
  
  throws: SDLException on failure
  */
@@ -52,8 +52,13 @@ public void initAudioVideo() {
  */
 public void initSDL(Uint32 code) {
     debug writefln("init(%s)",code);
+    
+    if(!DerelictSDL.isLoaded) {
+        DerelictSDL.load();
+    }
+    
     if(SDL_Init(code) == -1) {
-        debug writefln("Initiliziation failed :-(");
+        debug writefln("Initiliziation failed");
         throw new SDLException("Initialization failed");
     } else {
         debug writefln("Initialized");
@@ -72,7 +77,7 @@ in {
 alias SDL_GetTicks getTicks;
 
 
-shared static ~this() {
+/*shared*/ static ~this() {
     if( /*activated && */ SDL_WasInit(SDL_INIT_EVERYTHING) ) {
         SDL_Quit();
         debug writeln("\nSDL_Quit()");
@@ -81,7 +86,7 @@ shared static ~this() {
 
 /* -------Subsystem------- */
 /**
- Instances of this struct represent the several SDL subsystems
+ Instances of this struct represent the several SDL subsystems.
  
  NOT FINISHED
  */
@@ -108,7 +113,7 @@ public struct Subsystem {
     
     /** Is this Subsystem activated? */
     @property
-    public bool activated() immutable {
+    public bool activated() const {
         return SDL_WasInit(bitflag) != 0;
     }
     
@@ -117,7 +122,7 @@ public struct Subsystem {
      
      throws: SDLException on failure
      */
-    public void activate() immutable {
+    public void activate() const {
         if(SDL_InitSubSystem(bitflag) == -1) {
             throw new SDLException;
         }
