@@ -4,6 +4,7 @@ import std.exception: enforce;
 import std.string: toStringz;
 import std.math: floor;
 //import std.stdio: IOException;
+
 import mysdl.sdlapi;
 import mysdl.system: SDLException;
 
@@ -20,6 +21,14 @@ public struct Surface {
         enum msg = "null SDL_Surface pointer in "~typeof(this).stringof;
         this.surptr = enforce(ptr, msg);
         this.isDisplay = disp;
+    }
+    
+    this(SDL_RWops* r) {
+        this.surptr = SDL_LoadBMP_RW(r, 0);
+    }
+    
+    this(ubyte[] rawBytes) {
+        this(SDL_RWFromMem(rawBytes.ptr, rawBytes.length));
     }
     
     @property
@@ -122,7 +131,6 @@ public struct Surface {
     }
     
     static Surface loadBMP(string filename) {
-        //TODO find some better exception type
         return Surface( enforce(
             SDL_LoadBMP(toStringz(filename)), new SDLException("Failed to load Bitmap")
         ));
@@ -213,7 +221,8 @@ public struct Clipper {
         clipsPerLine = cast(int) floor((0.0 + src.width) / width);        
     }
     
-    @property int count() {
+    @property
+    int count() {
         int clipsPerLine = cast(int) floor((0.0 + src.width) / width);
         int clipsPerColumn = cast(int) floor((0.0 + src.height) / height);
         return clipsPerLine * clipsPerColumn;

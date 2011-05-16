@@ -23,6 +23,7 @@ static this() {
 }
 
 void startAudio() {
+    debug writeln("Starting audio");
     SDL_OpenAudio(&globalAudioSpec, null);
     SDL_PauseAudio(0); //make the music actually play
 }
@@ -47,8 +48,20 @@ struct Sound {
         return s;
     }
     
+    this(SDL_RWops* r) {
+        ubyte* dataPtr;
+        uint  dataLen;
+        if(SDL_LoadWAV_RW(r, 0, &this.spec, &dataPtr, &dataLen) == null) {
+            throw new SDLException;
+        }
+        this.data = dataPtr[0.. dataLen];        
+    }
+    
+    this(ubyte[] rawBytes) {
+        this(SDL_RWFromMem(rawBytes.ptr, rawBytes.length));
+    }
+    
     void convert(AudioSpec newSpec) {
-        debug writeln("before conversion: ", data);
         SDL_AudioCVT cvt;
         SDL_BuildAudioCVT(&cvt, spec.format,    spec.channels,    spec.freq,
                            newSpec.format, newSpec.channels, newSpec.freq);
@@ -57,15 +70,14 @@ struct Sound {
         cvt.len = data.length;
         memcpy(cvt.buf, data.ptr, data.length);
         SDL_ConvertAudio(&cvt);
-        //SDL_FreeWAV(data.ptr);
+        SDL_FreeWAV(data.ptr);
         spec = newSpec;
         data = cvt.buf[0.. cvt.len_cvt];
-        debug writeln("Afetr conversion ", data);
     }
     
     bool play() {
-        //if this sound has the wrong spec create a convert
-        //a copy and play it
+        //if this sound has the wrong spec create a copy
+        //convert it and play it
         debug writeln("Trying to play sound");
         if(spec != globalAudioSpec) {
             Sound s = this;
@@ -92,12 +104,9 @@ struct Sound {
         
         debug writeln("A slot was found");
         
-        //SDL_LockAudio();
-        //scope(exit) SDL_UnlockAudio();
-        debug writefln("this.data : %s", this.data);
+        SDL_LockAudio();
+        scope(exit) SDL_UnlockAudio();
         playedSounds[index].data = this.data;
-        
-        debug writefln("Played sounds %s", playedSounds);
         
         return true;
     }
@@ -120,7 +129,6 @@ extern(C) private void mixAudio(void* unused, ubyte* stream, int maxLength) {
         if(toPlay == 0) continue;
         debug writefln("Playing %s bytes", toPlay);
         SDL_MixAudio(stream, ps.data.ptr, toPlay, SDL_MIX_MAXVOLUME);
-        debug writefln("Stream %s", stream[0.. maxLength]);
         ps.data = ps.data[toPlay .. $];
     }
 }
