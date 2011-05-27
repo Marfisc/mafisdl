@@ -8,8 +8,18 @@ import std.c.stdlib, std.c.string;
 import std.algorithm: min;
 debug import std.stdio;
 
+/** 
+An AudioSpec defines how exactly an audio stream is laid out in memory.
+
+Alias of SDL_AudioSpec so look for it to get information about the fields.
+*/
 alias SDL_AudioSpec AudioSpec;
 
+/**
+Set this before you use startAudio. 
+
+Changing it later is undefined behauvior.
+*/
 public __gshared AudioSpec globalAudioSpec;
 
 static this() {
@@ -22,21 +32,38 @@ static this() {
     globalAudioSpec.userdata = null;
 }
 
+/**
+Start playing audio.
+*/
 void startAudio() {
     debug writeln("Starting audio");
     SDL_OpenAudio(&globalAudioSpec, null);
     SDL_PauseAudio(0); //make the music actually play
 }
 
+/**
+Stop using audio.
+*/
 void stopAudio() {
     SDL_CloseAudio();
 }
 
+/**
+This struct represents a sound.
 
+Load with Sound.load or use the constructor with an ubyte[] or RWops.
+*/
 struct Sound {
     ubyte[] data;
     AudioSpec spec;
     
+    /**
+    Load Sound from file specified with path.
+    
+    Only supports WAV format.
+    
+    Throws: SDLException on failure.
+    */
     static typeof(this) load(string path) {
         Sound s;
         ubyte* dataPtr;
@@ -48,6 +75,13 @@ struct Sound {
         return s;
     }
     
+    /**
+    Create a sound out of the data of the RWops given.
+    
+    Only supports WAV format.
+    
+    Throws: SDLException on failure.
+    */
     this(SDL_RWops* r) {
         ubyte* dataPtr;
         uint  dataLen;
@@ -57,11 +91,26 @@ struct Sound {
         this.data = dataPtr[0.. dataLen];        
     }
     
+    /**
+    Create the sound of data pointed to by rawBytes. 
+    
+    Only supports WAV format.
+    
+    Throws: SDLException on failure.
+    */
     this(ubyte[] rawBytes) {
         this(SDL_RWFromMem(rawBytes.ptr, rawBytes.length));
     }
     
-    void convert(AudioSpec newSpec) {
+    /**
+    Convert the sound to newSpec. Use this struct to point to the new
+    converted sound.
+    
+    Params:
+    newSpec=   The spec you want to convert the sound to.
+    freeOld=   If you want to free the old. Standard is true.
+    */
+    void convert(AudioSpec newSpec, bool freeOld = true) {
         SDL_AudioCVT cvt;
         SDL_BuildAudioCVT(&cvt, spec.format,    spec.channels,    spec.freq,
                            newSpec.format, newSpec.channels, newSpec.freq);
@@ -70,11 +119,17 @@ struct Sound {
         cvt.len = data.length;
         memcpy(cvt.buf, data.ptr, data.length);
         SDL_ConvertAudio(&cvt);
-        SDL_FreeWAV(data.ptr);
+        if(freeOld) SDL_FreeWAV(data.ptr);
         spec = newSpec;
         data = cvt.buf[0.. cvt.len_cvt];
     }
     
+    /**
+    Play the sound.
+    
+    Assumes you use the standard audio mixer. Otherwise nothing should
+    happen.
+    */
     bool play() {
         //if this sound has the wrong spec create a copy
         //convert it and play it
@@ -112,7 +167,7 @@ struct Sound {
     }
 }
 
-struct PlayedSound {
+private struct PlayedSound {
     ubyte[] data;
     
     public string toString() {
@@ -120,7 +175,7 @@ struct PlayedSound {
             data.length, data); 
     }
 }
-__gshared PlayedSound[3] playedSounds;
+private __gshared PlayedSound[3] playedSounds;
 
 extern(C) private void mixAudio(void* unused, ubyte* stream, int maxLength) {
     //debug writefln("mixing: Stream: %s     maxLength: %s", stream, maxLength);
