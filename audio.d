@@ -64,7 +64,7 @@ struct Sound {
     
     Throws: SDLException on failure.
     */
-    static typeof(this) load(string path) {
+    static typeof(this) loadWAV(string path) {
         Sound s;
         ubyte* dataPtr;
         uint  dataLen;
@@ -136,7 +136,7 @@ struct Sound {
         debug writeln("Trying to play sound");
         if(spec != globalAudioSpec) {
             Sound s = this;
-            s.convert(globalAudioSpec);
+            s.convert(globalAudioSpec, false);
             return s.play();
         }
         
