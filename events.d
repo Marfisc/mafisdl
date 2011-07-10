@@ -7,7 +7,7 @@ import std.traits;
 alias SDL_KEYDOWN KeyDown;
 alias SDL_KEYUP   KeyUp;
 alias SDL_MOUSEBUTTONDOWN MouseDown;
-alias SDL_MOUSEBUTTONUP   MouseUP;
+alias SDL_MOUSEBUTTONUP   MouseUp;
 alias SDL_JOYBUTTONDOWN  JoyButtonDown;
 alias SDL_JOYBUTTONUP    JoyButtonUp;
 
