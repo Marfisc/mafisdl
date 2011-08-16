@@ -44,8 +44,13 @@ struct Surface {
     int height() const { return this.surptr.h; }
     
     @property
-    Rect whole() const {
+    Rect rect() const {
         return Rect(0, 0, cast(ushort) width, cast(ushort) height);
+    }
+    
+    @property
+    Clip whole() {
+        return Clip(this, rect);
     }
     
     /* -----Painting---------- */
@@ -127,12 +132,8 @@ struct Surface {
         return Clip(this, r);
     }
     
-    Clip clip(T...)(T t) if(is(typeof(rect(t) = Rect))) {
-        return Clip(this, rect(t));
-    }
-    
-    Clip clip()() {
-        return Clip(this, whole);
+    Clip clip(T...)(T t) if(is(typeof(Rect(t)) == Rect)) {
+        return Clip(this, Rect(t));
     }
     
     static Surface loadBMP(string filename) {
@@ -206,6 +207,51 @@ Rect smaller(Rect r, short sw, short sh) {
     return Rect(r.x, r.y, max(r.width - sw, 0), max(r.height - sh, 0));
 }
 
+/**
+The parameters a (probably bigger) rect called major and a secong
+rect called minor. Minor's origin is major upper left corner so minor
+is relative to major.
+This function returns the overlap of these rect as a ret which is
+relative to major.
+*/
+Rect subrect(Rect major, Rect minor) {
+    return Rect(max(0, minor.x), max(0, minor.y),
+        min(minor.width - minor.x, major.width),
+        min(minor.height - minor.y, major.height));
+}
+
+/**
+Returns a rect with absolute coordinates outof a relative rect.
+
+params: origin= the rect to whose upper left corner the other
+                 is relative to.
+        relative= the relative rect.
+*/
+Rect absolute(Rect origin, Rect relative) {
+    return Rect(origin.x + relative.x, origin.y+ relative.y,
+        relative.width, relative.height);
+}
+
+Rect relative(Rect origin, Rect absolute) {
+    return Rect(absolute.x - origin.x, absolute.y - origin.y,
+        absolute.width, absolute.height);
+}
+
+/**
+Like subrect but returns a rect with absolute coordinates.
+*/
+Rect absoluteSubrect(Rect major, Rect minor) {
+    return absolute(major, subrect(major, minor));
+}
+
+/**
+The rect that conatins only and all of the points that are in both
+a and b.
+*/
+Rect overlap(Rect a, Rect b) {
+    return absoluteSubrect(a, relative(a, b));
+}
+
 struct Clip {
     Surface sur;
     Rect rect;
@@ -221,6 +267,10 @@ struct Clip {
         sur.blit(dst.sur,
             smaller(maximalBounds(rect, dst.rect.width, dst.rect.height), x, y),
             x, y);
+    }
+    
+    void fill(ubyte[3] color...) {
+        sur.fillRect(rect, color);
     }
 }
 
