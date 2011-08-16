@@ -71,17 +71,18 @@ public struct Joystick {
     mixin count!"Balls";
     mixin count!"Buttons";
     mixin count!"Hats";
-
+    /+
     public this(SDL_Joystick* somePtr) {
         this.joyptr = somePtr;
-    }
+    }+/
     
     public this(int index) 
     in { 
         assert(index >= 0);
         assert(index < Joystick.getCount());
     } body {
-        this(SDL_JoystickOpen(index));
+        //this(SDL_JoystickOpen(index));
+        joyptr = SDL_JoystickOpen(index);
     }
     
     public short getAxis(int no) 

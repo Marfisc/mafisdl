@@ -1,5 +1,6 @@
 module mysdl.video;
 
+import std.algorithm: min, max;
 import std.exception: enforce;
 import std.string: toStringz;
 import std.math: floor;
@@ -8,7 +9,7 @@ import std.math: floor;
 import mysdl.sdlapi;
 import mysdl.system: SDLException;
 
-public struct Surface {
+struct Surface {
     private:
     SDL_Surface* surptr = null;
     bool isDisplay = false;
@@ -43,37 +44,29 @@ public struct Surface {
     int height() const { return this.surptr.h; }
     
     @property
-    Rect rect() const {
-        return createRect(0, 0, cast(ushort) width, cast(ushort) height);
+    Rect whole() const {
+        return Rect(0, 0, cast(ushort) width, cast(ushort) height);
     }
     
     /* -----Painting---------- */
     
-    void blitTo(Surface dst) {
-        SDL_BlitSurface(this.surptr, null, dst.surptr, null);
-    }
-    
-    void blitTo(Surface dst, Rect r, short x, short y) {
-        Rect dstrect = createRect(x, y, r.w, r.h);
-        SDL_BlitSurface(this.surptr, &r, dst.surptr, &dstrect );
+    void blit(Surface dst, Rect r, short x, short y) {
+        Rect dstrect = Rect(x, y, r.width, r.height);
+        SDL_BlitSurface(this.surptr, &r.r, dst.surptr, &dstrect.r );
     }
     
     void blitTo(Surface dst, short x, short y) {
-        Rect dstrect = createRect(x, y, 0, 0); //cast(ushort)this.width, cast(ushort)this.height
+        Rect dstrect = Rect(x, y, 0, 0); //cast(ushort)this.width, cast(ushort)this.height
         //Rect srcrect = createRect(0, 0, cast(ushort)this.width, cast(ushort)this.height);
-        SDL_BlitSurface(this.surptr, null, dst.surptr, &dstrect);
+        SDL_BlitSurface(this.surptr, null, dst.surptr, &dstrect.r);
     }
     
-    void blitFrom(Surface src) {
-        src.blitTo(this);
+    deprecated void blitTo(Surface dst) {
+        SDL_BlitSurface(this.surptr, null, dst.surptr, null);
     }
     
-    void blitFrom(Surface src, Rect r, short x, short y) {
-        src.blitTo(this, r, x, y);
-    } 
-
     void fillRect(Rect r, ubyte[3] color ...) {
-        SDL_FillRect(this.surptr, &r, 
+        SDL_FillRect(this.surptr, &r.r, 
             this.mapRGB(color[0], color[1], color[2]));
     }
     
@@ -93,7 +86,7 @@ public struct Surface {
     void update(Rect r)
     in { assert(this.isDisplay); }
     body {
-        SDL_UpdateRect(this.surptr, r.x, r.y, r.w, r.h);
+        SDL_UpdateRect(this.surptr, r.x, r.y, r.width, r.height);
     }
     
     void update(short x, short y, ushort width, ushort height)
@@ -128,6 +121,18 @@ public struct Surface {
     in { assert(!this.isDisplay); } 
     body {
         SDL_FreeSurface(this.surptr);
+    }
+    
+    Clip clip()(Rect r) {
+        return Clip(this, r);
+    }
+    
+    Clip clip(T...)(T t) if(is(typeof(rect(t) = Rect))) {
+        return Clip(this, rect(t));
+    }
+    
+    Clip clip()() {
+        return Clip(this, whole);
     }
     
     static Surface loadBMP(string filename) {
@@ -167,7 +172,7 @@ alias SDL_PREALLOC      PREALLOC;
 
 
 
-public Surface setVideoMode(int width, int height, int bitspp, Uint32 flags) {
+Surface setVideoMode(int width, int height, int bitspp, Uint32 flags) {
     return Surface(
     //TODO better exception
         enforce(SDL_SetVideoMode(width, height, bitspp, flags)),
@@ -175,41 +180,51 @@ public Surface setVideoMode(int width, int height, int bitspp, Uint32 flags) {
         true );
 }
 
-alias SDL_Rect Rect;
-
-Rect createRect(short x, short y, ushort width, ushort height)
-//in { assert(data[2] > 0); assert(data[3] > 0); }
-body {
-    SDL_Rect r;
-    r.x = x;
-    r.y = y;
-    r.w = width;
-    r.h = height;
-    return r;
-}
-
-Rect createRect(int[4] c ...) {
-    SDL_Rect r;
-    r.x = cast(short) c[0];
-    r.y = cast(short) c[1];
-    r.w = cast(ushort)c[2];
-    r.h = cast(ushort)c[3];
-    return r;
-}
-
-public struct Clip {
-    Surface src;
-    Rect r;
+struct Rect {
+    this(short x, short y, short w, short h) {
+        r = SDL_Rect(x, y, w, h);
+    }
     
-    @property int width() { return r.w; }
-    @property int height() { return r.h; }
+    this(int[4] d...) {
+        this(cast(short)d[0], cast(short)d[1], cast(short)d[2], cast(short)d[3]);
+    }
+    
+    @property short x() { return r.x; }
+    @property short y() { return r.y; }
+    @property short width() { return r.w; }
+    @property short height() { return r.h; }
+    
+    
+    SDL_Rect r;
+}
+
+Rect maximalBounds(Rect r, short w, short h) {
+    return Rect(r.x, r.y, min(r.width, w), min(r.height, h));
+}
+
+Rect smaller(Rect r, short sw, short sh) {
+    return Rect(r.x, r.y, max(r.width - sw, 0), max(r.height - sh, 0));
+}
+
+struct Clip {
+    Surface sur;
+    Rect rect;
+    
+    @property int width() { return rect.width; }
+    @property int height() { return rect.height; }
     
     void blitTo(Surface dst, short x, short y) {
-        src.blitTo(dst, r, x, y);
+        sur.blit(dst, rect, x, y);
+    }
+    
+    void blitTo(Clip dst, short x, short y) {
+        sur.blit(dst.sur,
+            smaller(maximalBounds(rect, dst.rect.width, dst.rect.height), x, y),
+            x, y);
     }
 }
 
-public struct Clipper {
+struct Clipper {
     Surface src;
     int width, height;
     private immutable int clipsPerLine;
@@ -235,7 +250,7 @@ public struct Clipper {
     Clip opIndex(int index) {
         int x = index % clipsPerLine;
         int y = (index - x) / clipsPerLine;
-        auto r = createRect(x * width, y * height, width, height);
+        auto r = Rect(x * width, y * height, width, height);
         return Clip(src, r);
     }
     
