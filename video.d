@@ -2,7 +2,7 @@ module mysdl.video;
 
 import std.algorithm: min, max;
 import std.exception: enforce;
-import std.string: toStringz;
+import std.string: toStringz, format;
 import std.math: floor;
 //import std.stdio: IOException;
 
@@ -173,6 +173,17 @@ alias SDL_PREALLOC      PREALLOC;
 
 
 
+/**
+Like SDL_SetVideoMode. Creates the main window of size
+width*height and colordepth bitspp.
+
+Use flags to control the behauvior of the game window.
+The flags are named exactly like in SDL but without the
+SDL_-prefix.
+
+returns: the Surface that represents drawable area of the
+window.
+*/
 Surface setVideoMode(int width, int height, int bitspp, Uint32 flags) {
     return Surface(
     //TODO better exception
@@ -181,6 +192,10 @@ Surface setVideoMode(int width, int height, int bitspp, Uint32 flags) {
         true );
 }
 
+/**
+This structure represents rectengular area with x, y, width
+and heights.
+*/
 struct Rect {
     this(short x, short y, short w, short h) {
         r = SDL_Rect(x, y, w, h);
@@ -195,6 +210,9 @@ struct Rect {
     @property short width() { return r.w; }
     @property short height() { return r.h; }
     
+    string toString() {
+        return format("Rect(%s,%s, %s,%s)", x, y, width, height);
+    }
     
     SDL_Rect r;
 }
@@ -208,20 +226,26 @@ Rect smaller(Rect r, short sw, short sh) {
 }
 
 /**
-The parameters a (probably bigger) rect called major and a secong
+The parameters a (probably bigger) rect called major and a second
 rect called minor. Minor's origin is major upper left corner so minor
 is relative to major.
-This function returns the overlap of these rect as a ret which is
+This function returns the overlap of these rect as a rect which is
 relative to major.
 */
 Rect subrect(Rect major, Rect minor) {
     return Rect(max(0, minor.x), max(0, minor.y),
-        min(minor.width - minor.x, major.width),
-        min(minor.height - minor.y, major.height));
+        min(minor.width, major.width  - minor.x),
+        min(minor.height, major.height - minor.y));
+}
+
+unittest {
+    //import std.stdio;
+    //writeln(subrect(Rect(12,8, 6,7), Rect(1,2, 18,3)));
+    assert(subrect(Rect(12,8, 6,7), Rect(1,2, 18,3)) == Rect(1,2, 5,3));
 }
 
 /**
-Returns a rect with absolute coordinates outof a relative rect.
+Returns a rect with absolute coordinates out of a relative rect.
 
 params: origin= the rect to whose upper left corner the other
                  is relative to.
@@ -252,33 +276,69 @@ Rect overlap(Rect a, Rect b) {
     return absoluteSubrect(a, relative(a, b));
 }
 
+/**
+This structure represents a part of a Surface. Many operations that work 
+on Surfaces also work on Clips.
+
+The standard way to create a Clip is Surface's clip funczion or whole-
+property.
+
+When some operation needs a Clip but you want to give it a whole Surface
+just use the Surface's whole property.
+*/
 struct Clip {
     Surface sur;
     Rect rect;
     
+    /**
+    The width and height of this Clip.
+    */
     @property int width() { return rect.width; }
-    @property int height() { return rect.height; }
+    @property int height() { return rect.height; } ///ditto
     
+    /**
+    Blit this clip onto a Surface or another clip.
+    */
     void blitTo(Surface dst, short x, short y) {
         sur.blit(dst, rect, x, y);
     }
-    
+
+    ///ditto
     void blitTo(Clip dst, short x, short y) {
         sur.blit(dst.sur,
             smaller(maximalBounds(rect, dst.rect.width, dst.rect.height), x, y),
             x, y);
     }
     
+    /**
+    Fill the whole clip with one color.
+    -----
+    Surface display;
+    ...
+    //Fill the whole display black.
+    display.whole.fill(0, 0, 0);
+    -----
+    */
     void fill(ubyte[3] color...) {
         sur.fillRect(rect, color);
     }
 }
 
+/**
+This struct generates clips in a tileset like manner.
+
+Use opIndex() to get the n-th Clip or opSlice() to get
+the whole Clip[].
+*/
 struct Clipper {
     Surface src;
     int width, height;
     private immutable int clipsPerLine;
     
+    /**
+    Construct a clipper that generates Clips of the
+    Surface s and size w*h.
+    */
     this(Surface s, int w, int h) {
         src = s;
         width = w;
@@ -286,6 +346,9 @@ struct Clipper {
         clipsPerLine = cast(int) floor((0.0 + src.width) / width);        
     }
     
+    /**
+    How many Clips are there?
+    */
     @property
     int count() {
         int clipsPerLine = cast(int) floor((0.0 + src.width) / width);

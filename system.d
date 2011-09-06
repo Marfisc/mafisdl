@@ -128,3 +128,7 @@ public struct Subsystem {
         }
     }
 }
+
+version(unittest) static this() {
+    initSDL();
+}
