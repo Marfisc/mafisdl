@@ -147,7 +147,7 @@ struct Sound {
         //search for sound slot
         foreach(i, s; playedSounds) {
             debug writefln("Slot #%s", i);
-            if(s.data.length >= 0) {
+            if(s.data.length == 0) {
                 debug writeln("Slot is empty");
                 found = true;
                 index = i;
