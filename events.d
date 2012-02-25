@@ -161,7 +161,7 @@ public void listen(T...)(T ts) {
         static if (is(typeof(t) == Put)) {
             //use predifend behaviour
             if (!! (t & Put.BREAK_ON_QUIT)) {
-                listener.setSDL_QuitEventHandler( (QuitEvent){return false;} );
+                listener.setSDL_QuitEventHandler( (QuitEvent ev){return false;} );
             }
         //hopefully a delegate
         } else {
