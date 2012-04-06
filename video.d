@@ -226,7 +226,7 @@ Rect smaller(Rect r, short sw, short sh) {
 }
 
 /**
-The parameters a (probably bigger) rect called major and a second
+The parameters are a (probably bigger) rect called major and a second
 rect called minor. Minor's origin is major upper left corner so minor
 is relative to major.
 This function returns the overlap of these rect as a rect which is
@@ -277,10 +277,21 @@ Rect overlap(Rect a, Rect b) {
 }
 
 /**
+Returns true iff the rects collide, ie share some points.
+*/
+bool collide(Rect r1, Rect r2) {
+    if(r1.x + r1.width -1 < r2.x) return false;
+    if(r2.x + r2.width -1 < r1.x) return false;
+    if(r1.y + r1.height -1 < r2.y) return false;
+    if(r2.y + r2.height -1 < r1.y) return false;
+    return true;
+}
+
+/**
 This structure represents a part of a Surface. Many operations that work 
 on Surfaces also work on Clips.
 
-The standard way to create a Clip is Surface's clip funczion or whole-
+The standard way to create a Clip is Surface's clip function or whole-
 property.
 
 When some operation needs a Clip but you want to give it a whole Surface
@@ -295,6 +306,13 @@ struct Clip {
     */
     @property int width() { return rect.width; }
     @property int height() { return rect.height; } ///ditto
+
+    /**
+    Get a subclip of this one using relative coordinates.
+    */
+    Clip clip(Rect r) {
+        return Clip(sur, subrect(rect, r));
+    }
     
     /**
     Blit this clip onto a Surface or another clip.
