@@ -22,7 +22,7 @@ struct MouseState {
 /**
  Get the current mouse state.
 */
-public MouseState getMouseState() {
+MouseState getMouseState() {
     MouseState ms;
     int mask = SDL_GetMouseState(&ms.x, &ms.y);
     ms.leftButton = (mask & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
@@ -38,7 +38,7 @@ public MouseState getMouseState() {
  
  see_also: getKeyState
 */
-public bool[] getInternalKeyState() {
+bool[] getInternalKeyState() {
     Uint8* keys = SDL_GetKeyState(null);
     assert(keys != null);
     return cast(bool[]) (keys[0.. SDLK_LAST]);
@@ -47,7 +47,7 @@ public bool[] getInternalKeyState() {
 /**
  Get the current key state.
 */
-public typeof(getInternalKeyState()) getKeyState() {
+typeof(getInternalKeyState()) getKeyState() {
     return getInternalKeyState().dup;
 }
 
@@ -60,10 +60,10 @@ public typeof(getInternalKeyState()) getKeyState() {
  Use countOfX where x is Axes, Balls, Buttons or Axes to get the count of 
  the corresponding input elements of this joytsick.
 */
-public struct Joystick {
+struct Joystick {
     private SDL_Joystick* joyptr = null;
     
-    public static int getCount() {
+    static int getCount() {
         return SDL_NumJoysticks();
     }
     
@@ -71,12 +71,14 @@ public struct Joystick {
     mixin count!"Balls";
     mixin count!"Buttons";
     mixin count!"Hats";
+
+    //strange linker error with this uncommented
     /+
-    public this(SDL_Joystick* somePtr) {
+    this(SDL_Joystick* somePtr) {
         this.joyptr = somePtr;
     }+/
     
-    public this(int index) 
+    this(int index) 
     in { 
         assert(index >= 0);
         assert(index < Joystick.getCount());
@@ -85,7 +87,7 @@ public struct Joystick {
         joyptr = SDL_JoystickOpen(index);
     }
     
-    public short getAxis(int no) 
+    short getAxis(int no) 
     in {
         assert(no >= 0);
         assert(no < countOfAxes);
@@ -93,7 +95,7 @@ public struct Joystick {
         return SDL_JoystickGetAxis(joyptr, no);
     }
     
-    public short getButton(int no) 
+    short getButton(int no) 
     in {
         assert(no >= 0);
         assert(no < countOfButtons);
@@ -101,7 +103,7 @@ public struct Joystick {
         return cast(bool) SDL_JoystickGetButton(joyptr, no);
     }  
     
-    public short getHat(int no) 
+    short getHat(int no) 
     in {
         assert(no >= 0);
         assert(no < countOfHats);
@@ -109,7 +111,7 @@ public struct Joystick {
         return SDL_JoystickGetHat(joyptr, no);
     } 
 
-    public Tuple!(int,int) getBall(int no) {
+    Tuple!(int,int) getBall(int no) {
         int x, y;
         if(SDL_JoystickGetBall(joyptr, no, &x, &y) == -1) {
             throw new SDLException();
@@ -117,11 +119,11 @@ public struct Joystick {
         return tuple(x,y);
     }
 
-    public void enable() {
+    void enable() {
         SDL_JoystickEventState(SDL_ENABLE);
     }
     
-    public void close() {
+    void close() {
         SDL_JoystickClose(joyptr);
         joyptr = null;
     }
@@ -129,7 +131,7 @@ public struct Joystick {
     mixin template count(string name) {
         mixin(`
             @property
-            public int countOf`~name~`() {
+            int countOf`~name~`() {
                 return SDL_JoystickNum`~name~`(this.joyptr);
             }
         `);

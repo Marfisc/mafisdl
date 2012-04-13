@@ -1,4 +1,4 @@
-﻿module mysdl.system;
+module mysdl.system;
 
 import mysdl.sdlapi;
 import mysdl.video;
@@ -12,13 +12,12 @@ debug import std.stdio;
 /* -------Utilities------- */
 
 /** Exception class for failures of SDL*/
-public class SDLException : Exception {
-    /* dummy-subclass */
-    public this(string msg) {
+class SDLException : Exception {
+    this(string msg) {
         super(msg);
     }
     
-    public this() {
+    this() {
         this( to!string(SDL_GetError()) );
     }
 }
@@ -28,7 +27,7 @@ public class SDLException : Exception {
  
  throws: SDLException on failure
  */
-public void initSDL() {
+void initSDL() {
     initSDL(SDL_INIT_EVERYTHING);
 }
 
@@ -37,7 +36,7 @@ public void initSDL() {
  
  throws: SDLException on failure
  */
-public void initAudioVideo() {
+void initAudioVideo() {
     initSDL(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
 }
 
@@ -50,7 +49,7 @@ public void initAudioVideo() {
  
  see_also: Subsystem
  */
-public void initSDL(Uint32 code) {
+void initSDL(Uint32 code) {
     debug writefln("init(%s)",code);
     
     if(!DerelictSDL.isLoaded) {
@@ -90,7 +89,7 @@ alias SDL_GetTicks getTicks;
  
  NOT FINISHED
  */
-public struct Subsystem {
+struct Subsystem {
     immutable uint bitflag;
     
     /**
@@ -113,7 +112,7 @@ public struct Subsystem {
     
     /** Is this Subsystem activated? */
     @property
-    public bool activated() const {
+    bool activated() const {
         return SDL_WasInit(bitflag) != 0;
     }
     
@@ -122,7 +121,7 @@ public struct Subsystem {
      
      throws: SDLException on failure
      */
-    public void activate() const {
+    void activate() const {
         if(SDL_InitSubSystem(bitflag) == -1) {
             throw new SDLException;
         }

@@ -20,7 +20,7 @@ Set this before you use startAudio.
 
 Changing it later is undefined behauvior.
 */
-public __gshared AudioSpec globalAudioSpec;
+__gshared AudioSpec globalAudioSpec;
 
 static this() {
     debug writeln("Initing globalAudioSpec");
@@ -170,7 +170,7 @@ struct Sound {
 private struct PlayedSound {
     ubyte[] data;
     
-    public string toString() {
+    string toString() {
         return format("Sound of %s bytes: %s", 
             data.length, data); 
     }

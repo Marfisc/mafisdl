@@ -15,7 +15,7 @@ struct Surface {
     bool isDisplay = false;
 
     public:
-    
+
     /* ----- Access ------- */
     
     this(SDL_Surface* ptr, bool disp = false) {
