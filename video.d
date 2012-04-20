@@ -310,8 +310,13 @@ struct Clip {
     /**
     Get a subclip of this one using relative coordinates.
     */
-    Clip clip(Rect r) {
+    Clip clip()(Rect r) {
         return Clip(sur, subrect(rect, r));
+    }
+
+    ///ditto
+    Clip clip(T...)(T t) if(is(typeof(Rect(t)) == Rect)) {
+        return clip(Rect(t));
     }
     
     /**
