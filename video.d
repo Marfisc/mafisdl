@@ -209,6 +209,13 @@ struct Rect {
     @property short y() { return r.y; }
     @property short width() { return r.w; }
     @property short height() { return r.h; }
+
+    @property int right() { return r.x + r.w - 1; }
+    @property int bottom() { return r.y + r.h - 1; }
+
+    bool contains(int tx, int ty) {
+        return tx >= x && tx <= right && ty >= y && ty <= bottom;
+    }
     
     string toString() {
         return format("Rect(%s,%s, %s,%s)", x, y, width, height);
