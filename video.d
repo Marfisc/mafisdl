@@ -336,7 +336,7 @@ struct Clip {
     ///ditto
     void blitTo(Clip dst, short x, short y) {
         sur.blit(dst.sur,
-            maximalBounds(rect, dst.rect.width, dst.rect.height),
+            maximalBounds(rect, cast(short)(dst.rect.width - x), cast(short)(dst.rect.height - y)),
             x, y);
     }
     
