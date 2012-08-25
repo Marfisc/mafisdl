@@ -318,7 +318,7 @@ struct Clip {
     Get a subclip of this one using relative coordinates.
     */
     Clip clip()(Rect r) {
-        return Clip(sur, subrect(rect, r));
+        return Clip(sur, absoluteSubrect(rect, r));
     }
 
     ///ditto
