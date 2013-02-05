@@ -363,7 +363,7 @@ the whole Clip[].
 struct Clipper {
     Surface src;
     int width, height;
-    private immutable int clipsPerLine;
+    private int clipsPerLine;
     
     /**
     Construct a clipper that generates Clips of the
