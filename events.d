@@ -14,15 +14,6 @@ alias SDL_BUTTON_LEFT     leftButton;
 alias SDL_BUTTON_RIGHT    rightButton;
 alias SDL_BUTTON_MIDDLE   middleButton;
 
-//to be removed soon
-deprecated {
-alias SDL_KEYDOWN KeyDown;
-alias SDL_KEYUP   KeyUp;
-alias SDL_MOUSEBUTTONDOWN MouseDown;
-alias SDL_MOUSEBUTTONUP   MouseUp;
-alias SDL_JOYBUTTONDOWN  JoyButtonDown;
-alias SDL_JOYBUTTONUP    JoyButtonUp;
-}
 
 //These are all (documented) Events (21.10.10)
 mixin aliasEvent!("QuitEvent");
