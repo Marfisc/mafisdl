@@ -1,7 +1,7 @@
-module mysdl.system;
+module mafisdl.system;
 
-import mysdl.sdlapi;
-import mysdl.video;
+import mafisdl.sdlapi;
+import mafisdl.video;
 
 import std.string;
 import std.conv : to;
@@ -52,8 +52,8 @@ void initAudioVideo() {
 void initSDL(Uint32 code) {
     debug writefln("init(%s)",code);
     
-    if(!DerelictSDL.isLoaded) {
-        DerelictSDL.load();
+    if(!DerelictSDL2.isLoaded) {
+        DerelictSDL2.load();
     }
     
     if(SDL_Init(code) == -1) {
@@ -102,7 +102,6 @@ struct Subsystem {
      */
     static immutable(Subsystem) audio = Subsystem(SDL_INIT_AUDIO);
     static immutable(Subsystem) video = Subsystem(SDL_INIT_VIDEO); ///ditto
-    static immutable(Subsystem) cdrom = Subsystem(SDL_INIT_CDROM); ///ditto
     static immutable(Subsystem) timer = Subsystem(SDL_INIT_TIMER); ///ditto
     static immutable(Subsystem) joystick = Subsystem(SDL_INIT_JOYSTICK); ///ditto
     

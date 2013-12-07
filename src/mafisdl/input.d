@@ -1,9 +1,9 @@
-module mysdl.input;
+module mafisdl.input;
 
-//make the key codes available to users of mysdl.input
-public import mysdl.sdlapi_keys;
-import mysdl.sdlapi;
-import mysdl.system;
+//make the key codes available to users of mafisdl.input
+public import mafisdl.sdlapi_keys;
+import mafisdl.sdlapi;
+import mafisdl.system;
 
 import std.typecons: Tuple, tuple;
 

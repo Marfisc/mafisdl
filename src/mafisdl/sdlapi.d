@@ -1,9 +1,9 @@
 /**
  * This module declares the SDL-API.
  */
-module mysdl.sdlapi;
+module mafisdl.sdlapi;
 
-public import derelict.sdl.sdl;
+public import derelict.sdl2.sdl;
 
 version(none):
 //pragma(lib,r"D:\d\mysdl_test\SDL.lib");
@@ -15,10 +15,10 @@ export extern(C) {
     int          SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
     int          SDL_Flip(SDL_Surface* screen);
     void         SDL_FreeSurface(SDL_Surface* surface);
-    char*        SDL_GetError();    
+    char*        SDL_GetError();
     Uint8        SDL_GetMouseState(int *x, int *y);
     int          SDL_GetTicks();
-    Uint8*       SDL_GetKeyState(int *numkeys);    
+    Uint8*       SDL_GetKeyState(int *numkeys);
     int          SDL_Init(Uint32 flags);
     int          SDL_InitSubSystem (Uint32 flags);
     void         SDL_JoystickClose (SDL_Joystick *Joystick);
@@ -29,7 +29,7 @@ export extern(C) {
     Uint8        SDL_JoystickGetHat (SDL_Joystick* JoyStick, int no);
     int          SDL_JoystickNumAxes (SDL_Joystick* Joystick);
     int          SDL_JoystickNumBalls (SDL_Joystick* Joystick);
-    int          SDL_JoystickNumButtons (SDL_Joystick *Joystick);  
+    int          SDL_JoystickNumButtons (SDL_Joystick *Joystick);
     int          SDL_JoystickNumHats (SDL_Joystick* Joystick);
     SDL_Joystick* SDL_JoystickOpen (int index);
     SDL_Surface* SDL_LoadBMP_RW(SDL_RWops*,int);
@@ -38,7 +38,7 @@ export extern(C) {
     int          SDL_SetColorKey(SDL_Surface* surface, Uint32 flag, Uint32 key);
     SDL_Surface* SDL_SetVideoMode(int width, int height, int bitsperpixel, Uint32 flags);
     int          SDL_PollEvent(SDL_Event* event);
-    void         SDL_Quit(); 
+    void         SDL_Quit();
     SDL_RWops*   SDL_RWFromFile(in char*,in char*);
     void         SDL_UpdateRect(SDL_Surface* screen, Sint32 x, Sint32 y, Sint32 w, Sint32 h);
     //1st parameter const?

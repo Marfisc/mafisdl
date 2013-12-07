@@ -1,7 +1,7 @@
-module mysdl.audio;
+module mafisdl.audio;
 
-import mysdl.sdlapi;
-import mysdl.system;
+import mafisdl.sdlapi;
+import mafisdl.system;
 
 import std.string;
 import std.c.stdlib, std.c.string;
@@ -28,7 +28,7 @@ static this() {
     globalAudioSpec.format = AUDIO_U8;
     globalAudioSpec.channels = 2;
     globalAudioSpec.samples = 2048;
-    globalAudioSpec.callback = &mixAudio;
+    globalAudioSpec.callback = cast(typeof(&targetTypeMixAudio))&mixAudio;
     globalAudioSpec.userdata = null;
 }
 
@@ -177,6 +177,7 @@ private struct PlayedSound {
 }
 private __gshared PlayedSound[3] playedSounds;
 
+extern(C) private nothrow void targetTypeMixAudio(void* unused, ubyte* stream, int maxLength) {}
 extern(C) private void mixAudio(void* unused, ubyte* stream, int maxLength) {
     //debug writefln("mixing: Stream: %s     maxLength: %s", stream, maxLength);
     foreach(ref ps; playedSounds) {

@@ -1,4 +1,4 @@
-module mysdl.video;
+module mafisdl.video;
 
 import std.algorithm: min, max;
 import std.exception: enforce;
@@ -6,8 +6,8 @@ import std.string: toStringz, format;
 import std.math: floor;
 //import std.stdio: IOException;
 
-import mysdl.sdlapi;
-import mysdl.system: SDLException;
+import mafisdl.sdlapi;
+import mafisdl.system: SDLException;
 
 struct Surface {
     private:
@@ -76,35 +76,11 @@ struct Surface {
     }
     
     void setColorKey(ubyte[3] color ...) {
-        check(SDL_SetColorKey(this.surptr, SDL_SRCCOLORKEY,
+        check(SDL_SetColorKey(this.surptr, SDL_TRUE,
            this.mapRGB(color)));
     }
     
     /* ------- Meta ------ */
-    
-    void update() 
-    in { assert(this.isDisplay); }
-    body {
-        SDL_UpdateRect(this.surptr, 0, 0, 0, 0);
-    }
-    
-    void update(Rect r)
-    in { assert(this.isDisplay); }
-    body {
-        SDL_UpdateRect(this.surptr, r.x, r.y, r.width, r.height);
-    }
-    
-    void update(short x, short y, ushort width, ushort height)
-    in { assert(this.isDisplay); }
-    body {
-        SDL_UpdateRect(this.surptr, x, y, width, height);
-    }
-    
-    void flip() 
-    in { assert(this.isDisplay); }
-    body {
-        check(SDL_Flip(this.surptr));
-    }
     
     uint mapRGB(ubyte[3] color ...) const {
         return SDL_MapRGB(this.surptr.format, color[0], color[1], color[2]);
@@ -150,27 +126,6 @@ struct Surface {
         }
     }
 }
-
-
-
-alias SDL_SWSURFACE     SWSURFACE;
-alias SDL_HWSURFACE     HWSURFACE;
-alias SDL_ASYNCBLIT     ASYNCBLIT;
-alias SDL_ANYFORMAT     ANYFORMAT;
-alias SDL_HWPALETTE     HWPALETTE;
-alias SDL_DOUBLEBUF     DOUBLEBUF;
-alias SDL_FULLSCREEN    FULLSCREEN;
-alias SDL_OPENGL        OPENGL;
-alias SDL_OPENGLBLIT    OPENGLBLIT;
-alias SDL_RESIZABLE     RESIZABLE;
-alias SDL_NOFRAME       NOFRAME;
-alias SDL_HWACCEL       HWACCEL;
-alias SDL_SRCCOLORKEY   SRCCOLORKEY;
-alias SDL_RLEACCELOK    RLEACCELOK;
-alias SDL_RLEACCEL      RLEACCEL;
-alias SDL_SRCALPHA      SRCALPHA;
-alias SDL_PREALLOC      PREALLOC;
-
 
 
 /**
