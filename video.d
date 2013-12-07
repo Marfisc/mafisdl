@@ -29,7 +29,7 @@ struct Surface {
     }
     
     this(ubyte[] rawBytes) {
-        this(SDL_RWFromMem(rawBytes.ptr, rawBytes.length));
+        this(SDL_RWFromMem(rawBytes.ptr, cast(int)rawBytes.length));
     }
     
     @property

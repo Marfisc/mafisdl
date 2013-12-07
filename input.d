@@ -36,20 +36,14 @@ MouseState getMouseState() {
  
  This state will be kept up to date by the SDL.
  
- see_also: getKeyState
 */
-bool[] getInternalKeyState() {
+bool[] getKeyState() {
     Uint8* keys = SDL_GetKeyState(null);
     assert(keys != null);
     return cast(bool[]) (keys[0.. SDLK_LAST]);
 }
 
-/**
- Get the current key state.
-*/
-typeof(getInternalKeyState()) getKeyState() {
-    return getInternalKeyState().dup;
-}
+alias getKeyState getInternalKeyState;
 
 /**
  This struct represents the a joystick.
