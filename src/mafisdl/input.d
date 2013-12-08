@@ -1,7 +1,5 @@
 module mafisdl.input;
 
-//make the key codes available to users of mafisdl.input
-public import mafisdl.sdlapi_keys;
 import mafisdl.sdlapi;
 import mafisdl.system;
 
@@ -32,18 +30,17 @@ MouseState getMouseState() {
 }
 
 /**
- Get SDL's internal key state.
+ Get state of the keyboard.
  
  This state will be kept up to date by the SDL.
  
 */
-bool[] getKeyState() {
-    Uint8* keys = SDL_GetKeyState(null);
-    assert(keys != null);
-    return cast(bool[]) (keys[0.. SDLK_LAST]);
+bool[] getKeyboardState() {
+    int numKeys;
+    auto state = cast(bool*) SDL_GetKeyboardState(&numKeys);
+    return state[0 .. numKeys];
 }
 
-alias getKeyState getInternalKeyState;
 
 /**
  This struct represents the a joystick.

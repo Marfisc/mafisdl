@@ -4,182 +4,91 @@ import std.algorithm: min, max;
 import std.exception: enforce;
 import std.string: toStringz, format;
 import std.math: floor;
-//import std.stdio: IOException;
 
 import mafisdl.sdlapi;
-import mafisdl.system: SDLException;
+import mafisdl.system: SDLException, sdlEnforce;
 
-struct Surface {
-    private:
-    SDL_Surface* surptr = null;
-    bool isDisplay = false;
+alias Surface = SDL_Surface*;
 
-    public:
+@property int width(in Surface s) { return s.w; }
+@property int height(in Surface s) { return s.h; }
+@property Rect rect(in Surface s) { return Rect(0, 0, s.width, s.height); }
+@property SClip whole(Surface s) { return SClip(s, s.rect); }
 
-    /* ----- Access ------- */
-    
-    this(SDL_Surface* ptr, bool disp = false) {
-        enum msg = "null SDL_Surface pointer in "~typeof(this).stringof;
-        this.surptr = enforce(ptr, msg);
-        this.isDisplay = disp;
-    }
-    
-    this(SDL_RWops* r) {
-        this.surptr = SDL_LoadBMP_RW(r, 0);
-    }
-    
-    this(ubyte[] rawBytes) {
-        this(SDL_RWFromMem(rawBytes.ptr, cast(int)rawBytes.length));
-    }
-    
-    @property
-    SDL_Surface* ptr() nothrow {
-        return this.surptr;
-    }
-    
-    @property
-    int width() const { return this.surptr.w; }
-    
-    @property
-    int height() const { return this.surptr.h; }
-    
-    @property
-    Rect rect() const {
-        return Rect(0, 0, cast(ushort) width, cast(ushort) height);
-    }
-    
-    @property
-    Clip whole() {
-        return Clip(this, rect);
-    }
-    
-    /* -----Painting---------- */
-    
-    void blit(Surface dst, Rect r, short x, short y) {
-        Rect dstrect = Rect(x, y, r.width, r.height);
-        SDL_BlitSurface(this.surptr, &r.r, dst.surptr, &dstrect.r );
-    }
-    
-    void blitTo(Surface dst, short x, short y) {
-        Rect dstrect = Rect(x, y, 0, 0); //cast(ushort)this.width, cast(ushort)this.height
-        //Rect srcrect = createRect(0, 0, cast(ushort)this.width, cast(ushort)this.height);
-        SDL_BlitSurface(this.surptr, null, dst.surptr, &dstrect.r);
-    }
-    
-    deprecated void blitTo(Surface dst) {
-        SDL_BlitSurface(this.surptr, null, dst.surptr, null);
-    }
-    
-    void fillRect(Rect r, ubyte[3] color ...) {
-        SDL_FillRect(this.surptr, &r.r, 
-            this.mapRGB(color[0], color[1], color[2]));
-    }
-    
-    void setColorKey(ubyte[3] color ...) {
-        check(SDL_SetColorKey(this.surptr, SDL_TRUE,
-           this.mapRGB(color)));
-    }
-    
-    /* ------- Meta ------ */
-    
-    uint mapRGB(ubyte[3] color ...) const {
-        return SDL_MapRGB(this.surptr.format, color[0], color[1], color[2]);
-    }
-    
-    void optimize(bool freeold = true) {
-        SDL_Surface* opt = SDL_DisplayFormat(this.surptr);
-        if(opt == null) {
-            throw new SDLException;
-        }
-        if(freeold) free();
-        this.surptr = opt;
-        
-    }
-    
-    void free() 
-    /* The surface returned by SetVideoMode is 
-       freed by SDL. */
-    in { assert(!this.isDisplay); } 
-    body {
-        SDL_FreeSurface(this.surptr);
-    }
-    
-    Clip clip()(Rect r) {
-        return Clip(this, r);
-    }
-    
-    Clip clip(T...)(T t) if(is(typeof(Rect(t)) == Rect)) {
-        return Clip(this, Rect(t));
-    }
-    
-    static Surface loadBMP(string filename) {
-        return Surface( enforce(
-            SDL_LoadBMP(toStringz(filename)), new SDLException("Failed to load Bitmap")
-        ));
-    }
+/* Painting */
 
-    /* ------ Utility -------- */
-    
-    void check(T)(T t) if(is(typeof( { T t; return t == -1;} ))) {
-        if(t == -1) {
-            throw new SDLException;
-        }
-    }
+void blit(Surface src, Rect r, Surface dst, int x, int y) {
+    Rect dstrect = Rect(x, y, r.width, r.height);
+    SDL_BlitSurface(src, &r, dst, &dstrect );
+}
+
+void blitTo(Surface src, Surface dst, int x, int y) {
+    Rect dstrect = Rect(x, y, 0, 0);
+    SDL_BlitSurface(src, null, src, &dstrect);
+}
+
+void fillRect(Surface src, Rect r, ubyte[3] color ...) {
+    SDL_FillRect(src, &r, src.mapRGB(color));
+}
+
+void setColorKey(Surface s, ubyte[3] color ...) {
+    sdlEnforce(SDL_SetColorKey(s, SDL_TRUE, s.mapRGB(color)));
+}
+
+uint mapRGB(Surface s, ubyte[3] color ...) {
+    return SDL_MapRGB(s.format, color[0], color[1], color[2]);
+}
+
+void free(Surface s)
+{
+    SDL_FreeSurface(s);
+}
+
+Clip clip()(Rect r) {
+    return Clip(this, r);
+}
+
+Clip clip(T...)(T t) if(is(typeof(Rect(t)) == Rect)) {
+    return Clip(this, Rect(t));
+}
+
+/* Loading */
+
+Surface loadBMP(string filename) {
+    return enforce(
+        SDL_LoadBMP(toStringz(filename)), new SDLException("Failed to load Bitmap")
+    );
+}
+
+Surface loadBMP(ubyte[] rawBytes) {
+    return enforce(
+        SDL_LoadBMP_RW(SDL_RWFromMem(rawBytes.ptr, cast(int)rawBytes.length), 0)
+    );
 }
 
 
-/**
-Like SDL_SetVideoMode. Creates the main window of size
-width*height and colordepth bitspp.
-
-Use flags to control the behauvior of the game window.
-The flags are named exactly like in SDL but without the
-SDL_-prefix.
-
-returns: the Surface that represents drawable area of the
-window.
-*/
-Surface setVideoMode(int width, int height, int bitspp, Uint32 flags) {
-    return Surface(
-    //TODO better exception
-        enforce(SDL_SetVideoMode(width, height, bitspp, flags)),
-    //It's a Display
-        true );
-}
 
 /**
 This structure represents rectengular area with x, y, width
 and heights.
 */
-struct Rect {
-    this(short x, short y, short w, short h) {
-        r = SDL_Rect(x, y, w, h);
-    }
-    
-    this(int[4] d...) {
-        this(cast(short)d[0], cast(short)d[1], cast(short)d[2], cast(short)d[3]);
-    }
-    
-    @property short x() { return r.x; }
-    @property short y() { return r.y; }
-    @property short width() { return r.w; }
-    @property short height() { return r.h; }
 
-    @property int right() { return r.x + r.w - 1; }
-    @property int bottom() { return r.y + r.h - 1; }
+alias Rect = SDL_Rect;
 
-    bool contains(int tx, int ty) {
-        return tx >= x && tx <= right && ty >= y && ty <= bottom;
-    }
-    
-    string toString() {
-        return format("Rect(%s,%s, %s,%s)", x, y, width, height);
-    }
-    
-    SDL_Rect r;
+@property int width(Rect r) { return r.w; }
+@property int height(Rect r) { return r.h; }
+@property int right(Rect r) { return r.x + r.w - 1; }
+@property int bottom(Rect r) { return r.y + r.h - 1; }
+
+bool contains(Rect r, int tx, int ty) {
+    return tx >= r.x && tx <= r.right && ty >= r.y && ty <= r.bottom;
 }
 
-Rect maximalBounds(Rect r, short w, short h) {
+string toString(Rect r) {
+    return format("Rect(%s,%s, %s,%s)", r.x, r.y, r.width, r.height);
+}
+
+Rect maximalBounds(Rect r, int w, int h) {
     return Rect(r.x, r.y, min(r.width, w), min(r.height, h));
 }
 
@@ -250,7 +159,7 @@ bool collide(Rect r1, Rect r2) {
 }
 
 /**
-This structure represents a part of a Surface. Many operations that work 
+This structure represents a part of a Surface. Many operations that work
 on Surfaces also work on Clips.
 
 The standard way to create a Clip is Surface's clip function or whole-
@@ -259,10 +168,10 @@ property.
 When some operation needs a Clip but you want to give it a whole Surface
 just use the Surface's whole property.
 */
-struct Clip {
+struct SClip {
     Surface sur;
     Rect rect;
-    
+
     /**
     The width and height of this Clip.
     */
@@ -272,41 +181,38 @@ struct Clip {
     /**
     Get a subclip of this one using relative coordinates.
     */
-    Clip clip()(Rect r) {
+    SClip clip()(Rect r) {
         return Clip(sur, absoluteSubrect(rect, r));
     }
 
     ///ditto
-    Clip clip(T...)(T t) if(is(typeof(Rect(t)) == Rect)) {
+    SClip clip(T...)(T t) if(is(typeof(Rect(t)) == Rect)) {
         return clip(Rect(t));
     }
-    
-    /**
-    Blit this clip onto a Surface or another clip.
-    */
-    void blitTo(Surface dst, short x, short y) {
-        sur.blit(dst, rect, x, y);
-    }
+}
 
-    ///ditto
-    void blitTo(Clip dst, short x, short y) {
-        sur.blit(dst.sur,
-            maximalBounds(rect, cast(short)(dst.rect.width - x), cast(short)(dst.rect.height - y)),
-            x, y);
-    }
-    
-    /**
-    Fill the whole clip with one color.
-    -----
-    Surface display;
-    ...
-    //Fill the whole display black.
-    display.whole.fill(0, 0, 0);
-    -----
-    */
-    void fill(ubyte[3] color...) {
-        sur.fillRect(rect, color);
-    }
+/**
+Blit clip c onto a Surface or another clip.
+*/
+void blitTo(SClip src, Surface dst, int x, int y) {
+    src.sur.blit(src.rect, dst, x, y);
+}
+
+///ditto
+void blitTo(SClip src, SClip dst, int x, int y) {
+    src.sur.blit(maximalBounds(src.rect, dst.rect.width - x, dst.rect.height - y),
+        dst.sur, x, y);
+}
+
+/**
+Fill the whole clip with one color.
+-----
+//Fill the whole surface black.
+surface.whole.fill(0, 0, 0);
+-----
+*/
+void fill(SClip c, ubyte[3] color...) {
+    c.sur.fillRect(c.rect, color);
 }
 
 /**
@@ -315,11 +221,11 @@ This struct generates clips in a tileset like manner.
 Use opIndex() to get the n-th Clip or opSlice() to get
 the whole Clip[].
 */
-struct Clipper {
+struct SClipper {
     Surface src;
     int width, height;
     private int clipsPerLine;
-    
+
     /**
     Construct a clipper that generates Clips of the
     Surface s and size w*h.
@@ -328,9 +234,9 @@ struct Clipper {
         src = s;
         width = w;
         height = h;
-        clipsPerLine = cast(int) floor((0.0 + src.width) / width);        
+        clipsPerLine = cast(int) floor((0.0 + src.width) / width);
     }
-    
+
     /**
     How many Clips are there?
     */
@@ -340,29 +246,29 @@ struct Clipper {
         int clipsPerColumn = cast(int) floor((0.0 + src.height) / height);
         return clipsPerLine * clipsPerColumn;
     }
-    
+
     int opDollar(){
         return count;
     }
-    
-    Clip opIndex(int index) {
+
+    SClip opIndex(int index) {
         int x = index % clipsPerLine;
         int y = (index - x) / clipsPerLine;
         auto r = Rect(x * width, y * height, width, height);
-        return Clip(src, r);
+        return SClip(src, r);
     }
-    
-    Clip[] opSlice() {
+
+    SClip[] opSlice() {
         return opSlice(0, opDollar());
     }
-    
-    Clip[] opSlice(int st, int end) {
-        Clip[] list;
+
+    SClip[] opSlice(int st, int end) {
+        SClip[] list;
         foreach(i; st .. end) {
             list ~= opIndex(i);
         }
         return list;
     }
-    
-    
+
+
 }
