@@ -5,8 +5,49 @@ import std.exception: enforce;
 import std.string: toStringz, format;
 import std.math: floor;
 
-import mafisdl.sdlapi;
-import mafisdl.system: SDLException, sdlEnforce;
+//import mafisdl.sdlapi;
+public import derelict.sdl2.sdl;
+import mafisdl.system;
+
+alias Renderer = SDL_Renderer*;
+
+Renderer createRenderer(Window window, uint flags = 0) {
+    return SDL_CreateRenderer(window, -1, flags);
+}
+
+Renderer setColor(Renderer r, ubyte[3] color...) {
+    SDL_SetRenderDrawColor(r, color[0], color[1], color[2], SDL_ALPHA_OPAQUE);
+    return r;
+}
+
+Renderer setColor(Renderer r, ubyte[4] color...) {
+    SDL_SetRenderDrawColor(r, color[0], color[1], color[2], color[3]);
+    return r;
+}
+
+alias renderClear = SDL_RenderClear;
+alias renderPresent = SDL_RenderPresent;
+
+
+alias Texture = SDL_Texture*;
+
+Texture fromSurface(Renderer renderer, Surface surface) {
+    return enforce(SDL_CreateTextureFromSurface(renderer, surface), new SDLException);
+}
+
+void renderCopy(Renderer renderer, Texture texture, Rect src, int x, int y) {
+    renderCopy(renderer, texture, &src, x, y);
+}
+
+void renderCopy(Renderer renderer, Texture texture, Rect* src, int x, int y) {
+    Rect dst = Rect(x, y, 0, 0);
+    sdlEnforce(SDL_QueryTexture(texture, null, null, &dst.w, &dst.h));
+    sdlEnforce(SDL_RenderCopy(renderer, texture, src, &dst));
+}
+
+void renderCopy(Renderer renderer, Texture texture, int x, int y) {
+    renderCopy(renderer, texture, x, y);
+}
 
 alias Surface = SDL_Surface*;
 

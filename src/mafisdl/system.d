@@ -1,6 +1,7 @@
 module mafisdl.system;
 
-public import mafisdl.sdlapi;
+//public import mafisdl.sdlapi;
+public import derelict.sdl2.sdl;
 import mafisdl.video;
 
 import std.string;
@@ -40,17 +41,6 @@ void initSDL() {
 }
 
 /**
- Initialize Audio and Video
-
- throws: SDLException on failure
- */
-void initAudioVideo() {
-    initSDL(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
-}
-
-
-
-/**
  Initialize SDL using the bitflags
 
  throws: SDLException on failure
@@ -74,6 +64,17 @@ void initSDL(Uint32 code) {
     }
 }
 
+alias Window = SDL_Window*;
+
+Window createWindow(string name, int x, int y, int width, int height, uint flags = 0) {
+    return SDL_CreateWindow(toStringz(name), x, y, width, height, flags);
+}
+
+Window createCenteredWindow(string name, int width, int height, uint flags = 0) {
+    return createWindow(name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        width, height, flags);
+}
+
 void delay(long ms)
 in {
     assert(ms > 0);
@@ -89,50 +90,6 @@ alias SDL_GetTicks getTicks;
         SDL_Quit();
         debug writeln("\nSDL_Quit()");
     } else debug writeln("\nSDL already shut down.");
-}
-
-/* -------Subsystem------- */
-/**
- Instances of this struct represent the several SDL subsystems.
-
- NOT FINISHED
- */
-struct Subsystem {
-    immutable uint bitflag;
-
-    /**
-     These represent a Subsystem.
-
-     Use for example the activated property to check if a Subsystem is activated.
-     ----
-     if(Subsystem.audio.activated) { }
-     ----
-     */
-    static immutable(Subsystem) audio = Subsystem(SDL_INIT_AUDIO);
-    static immutable(Subsystem) video = Subsystem(SDL_INIT_VIDEO); ///ditto
-    static immutable(Subsystem) timer = Subsystem(SDL_INIT_TIMER); ///ditto
-    static immutable(Subsystem) joystick = Subsystem(SDL_INIT_JOYSTICK); ///ditto
-
-    package this(immutable uint bitflag){
-        this.bitflag = bitflag;
-    }
-
-    /** Is this Subsystem activated? */
-    @property
-    bool activated() const {
-        return SDL_WasInit(bitflag) != 0;
-    }
-
-    /**
-     Activate this Subsystem.
-
-     throws: SDLException on failure
-     */
-    void activate() const {
-        if(SDL_InitSubSystem(bitflag) == -1) {
-            throw new SDLException;
-        }
-    }
 }
 
 version(unittest) static this() {
