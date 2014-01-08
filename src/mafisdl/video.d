@@ -25,6 +25,14 @@ Renderer setColor(Renderer r, ubyte[4] color...) {
     return r;
 }
 
+void drawRect(Renderer renderer, Rect rect) {
+    SDL_RenderDrawRect(renderer, &rect);
+}
+
+void fillRect(Renderer renderer, Rect rect) {
+    SDL_RenderFillRect(renderer, &rect);
+}
+
 alias renderClear = SDL_RenderClear;
 alias renderPresent = SDL_RenderPresent;
 
@@ -39,14 +47,15 @@ void renderCopy(Renderer renderer, Texture texture, Rect src, int x, int y) {
     renderCopy(renderer, texture, &src, x, y);
 }
 
-void renderCopy(Renderer renderer, Texture texture, Rect* src, int x, int y) {
-    Rect dst = Rect(x, y, 0, 0);
-    sdlEnforce(SDL_QueryTexture(texture, null, null, &dst.w, &dst.h));
-    sdlEnforce(SDL_RenderCopy(renderer, texture, src, &dst));
+void renderCopy(Renderer renderer, Texture texture, int x, int y) {
+    Rect src = Rect(0, 0, 0, 0);
+    sdlEnforce(SDL_QueryTexture(texture, null, null, &src.w, &src.h));
+    renderCopy(renderer, texture, &src, x, y);
 }
 
-void renderCopy(Renderer renderer, Texture texture, int x, int y) {
-    renderCopy(renderer, texture, x, y);
+void renderCopy(Renderer renderer, Texture texture, Rect* src, int x, int y) {
+    Rect dst = Rect(x, y, src.w, src.h);
+    sdlEnforce(SDL_RenderCopy(renderer, texture, src, &dst));
 }
 
 alias Surface = SDL_Surface*;
@@ -85,12 +94,12 @@ void free(Surface s)
     SDL_FreeSurface(s);
 }
 
-Clip clip()(Rect r) {
-    return Clip(this, r);
+SClip clip()(Surface surface, Rect r) {
+    return SClip(surface, r);
 }
 
-Clip clip(T...)(T t) if(is(typeof(Rect(t)) == Rect)) {
-    return Clip(this, Rect(t));
+SClip clip(T...)(Surface surface, T t) if(is(typeof(Rect(t)) == Rect)) {
+    return SClip(surface, Rect(t));
 }
 
 /* Loading */

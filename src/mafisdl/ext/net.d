@@ -8,9 +8,8 @@ import derelict.sdl2.net;
 import mafisdl.system;
 
 void initNet() {
-    debug writeln("Trying initNet");
     if(!DerelictSDL2Net.isLoaded) {
-        DerelictSDL2Net.load();
+        DerelictSDL2Net.load("/usr/local/lib/libSDL2_net-2.0.so.0.0.0");
     }
     if(SDLNet_Init() != 0) throw new SDLNetException;
 }
@@ -51,13 +50,11 @@ struct TCPSocket {
     }
 
     static typeof(this) open(IPAddress adr) {
-        return typeof(this)(enforce(SDLNet_TCP_Open(adr), new SDLNetException));
+        return typeof(this)(enforce(SDLNet_TCP_Open(cast(IPAddress)&adr), new SDLNetException));
     }
 
     typeof(this) accept() {
-        //debug writeln("Start accept");
         return typeof(this)(SDLNet_TCP_Accept(soc));
-        //debug writeln("End accept");
     }
 
     void rawSend(in ubyte[] data) {
