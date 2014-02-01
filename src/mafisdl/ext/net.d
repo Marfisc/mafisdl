@@ -50,7 +50,8 @@ struct TCPSocket {
     }
 
     static typeof(this) open(IPAddress adr) {
-        return typeof(this)(enforce(SDLNet_TCP_Open(cast(IPAddress)&adr), new SDLNetException));
+        //return typeof(this)(enforce(SDLNet_TCP_Open(cast(IPAddress)&adr), new SDLNetException));
+        return typeof(this)(enforce(SDLNet_TCP_Open(&adr), new SDLNetException));
     }
 
     typeof(this) accept() {

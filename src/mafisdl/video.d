@@ -43,6 +43,20 @@ Texture fromSurface(Renderer renderer, Surface surface) {
     return enforce(SDL_CreateTextureFromSurface(renderer, surface), new SDLException);
 }
 
+int width(Texture texture) {
+    int result;
+    sdlEnforce(SDL_QueryTexture(texture, null, null, &result, null));
+
+    return result;
+}
+
+int height(Texture texture) {
+    int result;
+    sdlEnforce(SDL_QueryTexture(texture, null, null, null, &result));
+
+    return result;
+}
+
 void renderCopy(Renderer renderer, Texture texture, Rect src, int x, int y) {
     renderCopy(renderer, texture, &src, x, y);
 }
@@ -60,10 +74,10 @@ void renderCopy(Renderer renderer, Texture texture, Rect* src, int x, int y) {
 
 alias Surface = SDL_Surface*;
 
-@property int width(in Surface s) { return s.w; }
-@property int height(in Surface s) { return s.h; }
-@property Rect rect(in Surface s) { return Rect(0, 0, s.width, s.height); }
-@property SClip whole(Surface s) { return SClip(s, s.rect); }
+int width(in Surface s) { return s.w; }
+int height(in Surface s) { return s.h; }
+Rect rect(in Surface s) { return Rect(0, 0, s.width, s.height); }
+SClip whole(Surface s) { return SClip(s, s.rect); }
 
 /* Painting */
 
@@ -125,10 +139,10 @@ and heights.
 
 alias Rect = SDL_Rect;
 
-@property int width(Rect r) { return r.w; }
-@property int height(Rect r) { return r.h; }
-@property int right(Rect r) { return r.x + r.w - 1; }
-@property int bottom(Rect r) { return r.y + r.h - 1; }
+int width(Rect r) { return r.w; }
+int height(Rect r) { return r.h; }
+int right(Rect r) { return r.x + r.w - 1; }
+int bottom(Rect r) { return r.y + r.h - 1; }
 
 bool contains(Rect r, int tx, int ty) {
     return tx >= r.x && tx <= r.right && ty >= r.y && ty <= r.bottom;

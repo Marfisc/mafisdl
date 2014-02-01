@@ -23,7 +23,7 @@ Changing it later is undefined behauvior.
 __gshared AudioSpec globalAudioSpec;
 
 static this() {
-    debug writeln("Initing globalAudioSpec");
+    //debug writeln("Initing globalAudioSpec");
     globalAudioSpec.freq = 22050;
     globalAudioSpec.format = AUDIO_U8;
     globalAudioSpec.channels = 2;
@@ -36,7 +36,7 @@ static this() {
 Start playing audio.
 */
 void startAudio() {
-    debug writeln("Starting audio");
+    //debug writeln("Starting audio");
     SDL_OpenAudio(&globalAudioSpec, null);
     SDL_PauseAudio(0); //make the music actually play
 }
@@ -133,7 +133,7 @@ struct Sound {
     bool play() {
         //if this sound has the wrong spec create a copy
         //convert it and play it
-        debug writeln("Trying to play sound");
+        //debug writeln("Trying to play sound");
         if(spec != globalAudioSpec) {
             Sound s = this;
             s.convert(globalAudioSpec, false);
@@ -146,9 +146,9 @@ struct Sound {
         bool found = false;
         //search for sound slot
         foreach(i, s; playedSounds) {
-            debug writefln("Slot #%s", i);
+            //debug writefln("Slot #%s", i);
             if(s.data.length == 0) {
-                debug writeln("Slot is empty");
+                //debug writeln("Slot is empty");
                 found = true;
                 index = cast(int) i;
                 break;
@@ -157,7 +157,7 @@ struct Sound {
 
         if(!found) return false;
 
-        debug writeln("A slot was found");
+        //debug writeln("A slot was found");
 
         SDL_LockAudio();
         scope(exit) SDL_UnlockAudio();
@@ -180,10 +180,12 @@ private __gshared PlayedSound[3] playedSounds;
 extern(C) private nothrow void targetTypeMixAudio(void* unused, ubyte* stream, int maxLength) {}
 extern(C) private void mixAudio(void* unused, ubyte* stream, int maxLength) {
     //debug writefln("mixing: Stream: %s     maxLength: %s", stream, maxLength);
+    //set silence
+    stream[0..maxLength] = 0;
     foreach(ref ps; playedSounds) {
         auto toPlay = min(ps.data.length, maxLength);
         if(toPlay == 0) continue;
-        debug writefln("Playing %s bytes", toPlay);
+        //debug writefln("Playing %s bytes", toPlay);
         SDL_MixAudio(stream, ps.data.ptr, toPlay, SDL_MIX_MAXVOLUME);
         ps.data = ps.data[toPlay .. $];
     }
