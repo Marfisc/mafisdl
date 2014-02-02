@@ -181,7 +181,7 @@ extern(C) private nothrow void targetTypeMixAudio(void* unused, ubyte* stream, i
 extern(C) private void mixAudio(void* unused, ubyte* stream, int maxLength) {
     //debug writefln("mixing: Stream: %s     maxLength: %s", stream, maxLength);
     //set silence
-    stream[0..maxLength] = 0;
+    stream[0..maxLength] = globalAudioSpec.silence;
     foreach(ref ps; playedSounds) {
         auto toPlay = min(ps.data.length, maxLength);
         if(toPlay == 0) continue;
