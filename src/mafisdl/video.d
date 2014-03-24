@@ -57,8 +57,11 @@ int height(Texture texture) {
     return result;
 }
 
-void renderCopy(Renderer renderer, Texture texture, Rect src, int x, int y) {
-    renderCopy(renderer, texture, &src, x, y);
+Rect whole(Texture texture) {
+    int width, height;
+    sdlEnforce(SDL_QueryTexture(texture, null, null, &width, &height));
+
+    return Rect(0, 0, width, height);
 }
 
 void renderCopy(Renderer renderer, Texture texture, int x, int y) {
@@ -67,10 +70,25 @@ void renderCopy(Renderer renderer, Texture texture, int x, int y) {
     renderCopy(renderer, texture, &src, x, y);
 }
 
+void renderCopy(Renderer renderer, Texture texture, Rect src, int x, int y) {
+    renderCopy(renderer, texture, &src, x, y);
+}
+
 void renderCopy(Renderer renderer, Texture texture, Rect* src, int x, int y) {
     Rect dst = Rect(x, y, src.w, src.h);
     sdlEnforce(SDL_RenderCopy(renderer, texture, src, &dst));
 }
+
+void renderCopy(Renderer renderer, Texture texture, Rect dst) {
+    renderCopy(renderer, texture, &dst);
+}
+
+void renderCopy(Renderer renderer, Texture texture, Rect* dst) {
+    Rect src = Rect(0, 0, 0, 0);
+    sdlEnforce(SDL_QueryTexture(texture, null, null, &src.w, &src.h));
+    sdlEnforce(SDL_RenderCopy(renderer, texture, &src, dst));
+}
+
 
 alias Surface = SDL_Surface*;
 
