@@ -80,7 +80,6 @@ void eventLoop(T)(T that) {
         "that.keepLooping" : "true")) {
         SDL_Event polledEvent;
         while(SDL_PollEvent(&polledEvent)) {
-            polledEvent.eventKeyUp;
             switch(polledEvent.type) {
                 mixin(caseOnEvent!("SDL_QUIT", "quit"));
                 mixin(caseOnEvent!("SDL_ACTIVEEVEENT", "active"));

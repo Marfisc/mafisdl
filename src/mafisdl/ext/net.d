@@ -9,7 +9,7 @@ import mafisdl.system;
 
 void initNet() {
     if(!DerelictSDL2Net.isLoaded) {
-        DerelictSDL2Net.load("/usr/local/lib/libSDL2_net-2.0.so.0.0.0");
+        DerelictSDL2Net.load();
     }
     if(SDLNet_Init() != 0) throw new SDLNetException;
 }

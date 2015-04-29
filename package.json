@@ -1,8 +1,0 @@
-{
-    "name": "mafisdl",
-    "copyright": "Copyright © 2013, Marcel Fischer",
-    "authors": ["Marcel Fischer"],
-    "dependencies": {
-        "derelict-sdl2": "~master"
-    }
-}
