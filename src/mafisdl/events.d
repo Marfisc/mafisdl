@@ -1,6 +1,6 @@
 module mafisdl.events;
 
-import mafisdl.sdlapi;
+import derelict.sdl2.sdl;
 
 import std.traits;
 

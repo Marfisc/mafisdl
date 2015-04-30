@@ -1,6 +1,5 @@
 module mafisdl.system;
 
-//public import mafisdl.sdlapi;
 public import derelict.sdl2.sdl;
 import mafisdl.video;
 

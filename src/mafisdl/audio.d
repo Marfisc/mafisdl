@@ -1,6 +1,5 @@
 module mafisdl.audio;
 
-import mafisdl.sdlapi;
 import mafisdl.system;
 
 import std.string;

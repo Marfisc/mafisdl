@@ -1,6 +1,5 @@
 module mafisdl.input;
 
-import mafisdl.sdlapi;
 import mafisdl.system;
 
 import std.typecons: Tuple, tuple;
@@ -31,9 +30,9 @@ MouseState getMouseState() {
 
 /**
  Get state of the keyboard.
- 
+
  This state will be kept up to date by the SDL.
- 
+
 */
 bool[] getKeyboardState() {
     int numKeys;
@@ -44,20 +43,20 @@ bool[] getKeyboardState() {
 
 /**
  This struct represents the a joystick.
- 
+
  You can use this struct to query information about the joysticks connected
  to this computer. Don't forget to properly close it.
- 
- Use countOfX where x is Axes, Balls, Buttons or Axes to get the count of 
+
+ Use countOfX where x is Axes, Balls, Buttons or Axes to get the count of
  the corresponding input elements of this joytsick.
 */
 struct Joystick {
     private SDL_Joystick* joyptr = null;
-    
+
     static int getCount() {
         return SDL_NumJoysticks();
     }
-    
+
     mixin count!"Axes";
     mixin count!"Balls";
     mixin count!"Buttons";
@@ -68,39 +67,39 @@ struct Joystick {
     this(SDL_Joystick* somePtr) {
         this.joyptr = somePtr;
     }+/
-    
-    this(int index) 
-    in { 
+
+    this(int index)
+    in {
         assert(index >= 0);
         assert(index < Joystick.getCount());
     } body {
         //this(SDL_JoystickOpen(index));
         joyptr = SDL_JoystickOpen(index);
     }
-    
-    short getAxis(int no) 
+
+    short getAxis(int no)
     in {
         assert(no >= 0);
         assert(no < countOfAxes);
     } body {
         return SDL_JoystickGetAxis(joyptr, no);
     }
-    
-    short getButton(int no) 
+
+    short getButton(int no)
     in {
         assert(no >= 0);
         assert(no < countOfButtons);
     } body {
         return cast(bool) SDL_JoystickGetButton(joyptr, no);
-    }  
-    
-    short getHat(int no) 
+    }
+
+    short getHat(int no)
     in {
         assert(no >= 0);
         assert(no < countOfHats);
     } body {
         return SDL_JoystickGetHat(joyptr, no);
-    } 
+    }
 
     Tuple!(int,int) getBall(int no) {
         int x, y;
@@ -113,12 +112,12 @@ struct Joystick {
     void enable() {
         SDL_JoystickEventState(SDL_ENABLE);
     }
-    
+
     void close() {
         SDL_JoystickClose(joyptr);
         joyptr = null;
     }
-    
+
     mixin template count(string name) {
         mixin(`
             @property
