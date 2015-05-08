@@ -4,6 +4,6 @@
     "license": "Boost",
     "authors": ["Marcel Fischer"],
     "dependencies": {
-        "derelict-sdl2": "~master"
+        "derelict-sdl2": "*"
     }
 }
