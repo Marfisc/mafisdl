@@ -89,6 +89,22 @@ void renderCopy(Renderer renderer, Texture texture, Rect* dst) {
     sdlEnforce(SDL_RenderCopy(renderer, texture, &src, dst));
 }
 
+void renderCopy(Renderer renderer, Texture texture, Rect src, Rect dst) {
+    renderCopy(renderer, texture, &src, &dst);
+}
+
+void renderCopy(Renderer renderer, Texture texture, Rect* src, Rect dst) {
+    renderCopy(renderer, texture, src, &dst);
+}
+
+void renderCopy(Renderer renderer, Texture texture, Rect src, Rect* dst) {
+    renderCopy(renderer, texture, &src, dst);
+}
+
+void renderCopy(Renderer renderer, Texture texture, Rect* src, Rect* dst) {
+    sdlEnforce(SDL_RenderCopy(renderer, texture, src, dst));
+}
+
 
 alias Surface = SDL_Surface*;
 
