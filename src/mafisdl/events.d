@@ -26,6 +26,8 @@ mixin aliasEvent!("JoyHatEvent");
 mixin aliasEvent!("JoyButtonEvent");
 mixin aliasEvent!("UserEvent");
 mixin aliasEvent!("SysWMEvent");
+mixin aliasEvent!("TextInputEvent");
+mixin aliasEvent!("TextEditingEvent");
 alias SDL_Event Event;
 
 struct KeyUp {
@@ -95,6 +97,8 @@ void eventLoop(T)(T that) {
                 mixin(caseOnEvent!("SDL_JOYBUTTONUP", "eventJoyButtonUp"));
                 mixin(caseOnEvent!("SDL_USEREVENT", "user"));
                 mixin(caseOnEvent!("SDL_SYSWMEVENT", "syswm"));
+                mixin(caseOnEvent!("SDL_TEXTINPUT", "text"));
+                mixin(caseOnEvent!("SDL_TEXTINPUT", "edit"));
             default: //has to be there even if empty
                 static if(is(typeof(that.onOther(Event.init)))) {
                     that.onOther(polledEvent); break;
