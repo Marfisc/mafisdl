@@ -21,7 +21,7 @@ Changing it later is undefined behauvior.
 */
 __gshared AudioSpec globalAudioSpec;
 
-static this() {
+shared static this() {
     //debug writeln("Initing globalAudioSpec");
     globalAudioSpec.freq = 22050;
     globalAudioSpec.format = AUDIO_U8;
