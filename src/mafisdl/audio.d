@@ -177,7 +177,11 @@ private struct PlayedSound {
 private __gshared PlayedSound[3] playedSounds;
 
 extern(C) private nothrow void targetTypeMixAudio(void* unused, ubyte* stream, int maxLength) {}
-extern(C) private void mixAudio(void* unused, ubyte* stream, int maxLength) {
+
+/**
+The standard audio mixing function. Enables Sound.play.
+*/
+extern(C) void mixAudio(void* unused, ubyte* stream, int maxLength) {
     //debug writefln("mixing: Stream: %s     maxLength: %s", stream, maxLength);
     //set silence
     stream[0..maxLength] = globalAudioSpec.silence;

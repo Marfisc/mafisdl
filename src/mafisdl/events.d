@@ -4,15 +4,16 @@ import derelict.sdl2.sdl;
 
 import std.traits;
 
+/** an alias for the correspondnig SDL event type */
 alias SDL_KEYDOWN keyDown;
-alias SDL_KEYUP   keyUp;
-alias SDL_MOUSEBUTTONDOWN mouseDown;
-alias SDL_MOUSEBUTTONUP   mouseUp;
-alias SDL_JOYBUTTONDOWN  joyButtonDown;
-alias SDL_JOYBUTTONUP    joyButtonUp;
-alias SDL_BUTTON_LEFT     leftButton;
-alias SDL_BUTTON_RIGHT    rightButton;
-alias SDL_BUTTON_MIDDLE   middleButton;
+alias SDL_KEYUP   keyUp; /// ditto
+alias SDL_MOUSEBUTTONDOWN mouseDown; /// ditto
+alias SDL_MOUSEBUTTONUP   mouseUp; /// ditto
+alias SDL_JOYBUTTONDOWN  joyButtonDown; /// ditto
+alias SDL_JOYBUTTONUP    joyButtonUp; /// ditto
+alias SDL_BUTTON_LEFT     leftButton; /// ditto
+alias SDL_BUTTON_RIGHT    rightButton; /// ditto
+alias SDL_BUTTON_MIDDLE   middleButton; /// ditto
 
 
 //These are all (documented) Events (21.10.10)
@@ -28,30 +29,45 @@ mixin aliasEvent!("UserEvent");
 mixin aliasEvent!("SysWMEvent");
 mixin aliasEvent!("TextInputEvent");
 mixin aliasEvent!("TextEditingEvent");
+
+/**
+The SDL event type. All SDL_XEvent types are aliased to XEvent.
+*/
 alias SDL_Event Event;
 
+/**
+Shallow wrapper type allowing to overload on event type.
+*/
 struct KeyUp {
     KeyboardEvent event;
     alias event this;
 }
+
+/// ditto
 struct KeyDown {
     KeyboardEvent event;
     alias event this;
 }
 
+/// ditto
 struct MouseButtonUp {
     MouseButtonEvent event;
     alias event this;
 }
+
+/// ditto
 struct MouseButtonDown {
     MouseButtonEvent event;
     alias event this;
 }
 
+/// ditto
 struct JoyButtonUp {
     JoyButtonEvent event;
     alias event this;
 }
+
+/// ditto
 struct JoyButtonDown {
     JoyButtonEvent event;
     alias event this;
@@ -64,6 +80,26 @@ private MouseButtonDown eventMouseButtonDown(Event ev) { return MouseButtonDown(
 private JoyButtonUp eventJoyButtonUp(Event ev) { return JoyButtonUp(ev.jbutton); }
 private JoyButtonDown eventJoyButtonDown(Event ev) { return JoyButtonDown(ev.jbutton); }
 
+/**
+Implements an event loop using the given value.
+
+First that.beginLoop() is called (if available).
+
+The events are listened for in a loop while that.keepLooping
+is true (if available).
+
+Events are dispatched to that.on(...) overloads. This on member
+should get a single parameter of the sdl event type. The events
+with up and down variants can be split by overloading the
+KeyUp, KeyDown etc. wrappers defined above.
+
+Not every event needs to be dispatched. You can receive all other
+events by defining that.onOther(Event). Otherwise all other
+events are ignored.
+
+Define that.looping() to define the actions for every loop iteration
+(regardless of the number of events).
+*/
 void eventLoop(T)(T that) {
     template caseOnEvent(string constant, string name) {
         enum caseOnEvent = "

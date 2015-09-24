@@ -9,40 +9,60 @@ import std.math: floor;
 public import derelict.sdl2.sdl;
 import mafisdl.system;
 
+///The SDL renderer (reference) type
 alias Renderer = SDL_Renderer*;
 
+///Create the renderer for the given window
 Renderer createRenderer(Window window, uint flags = 0) {
     return SDL_CreateRenderer(window, -1, flags);
 }
 
+///Set the drawing colour for the given renderer
 Renderer setColor(Renderer r, ubyte[3] color...) {
     SDL_SetRenderDrawColor(r, color[0], color[1], color[2], SDL_ALPHA_OPAQUE);
     return r;
 }
 
+///ditto
 Renderer setColor(Renderer r, ubyte[4] color...) {
     SDL_SetRenderDrawColor(r, color[0], color[1], color[2], color[3]);
     return r;
 }
 
+///Draw the (outline of the) given rect onto renderer using the current colour.
 void drawRect(Renderer renderer, Rect rect) {
     SDL_RenderDrawRect(renderer, &rect);
 }
 
+///Fill the given rect in renderer using the current colour.
 void fillRect(Renderer renderer, Rect rect) {
     SDL_RenderFillRect(renderer, &rect);
 }
 
+///Clear the renderer using the current colour
 alias renderClear = SDL_RenderClear;
+
+///Push the rendered image onto the screen
 alias renderPresent = SDL_RenderPresent;
 
 
+///The SDL texture (reference) type
 alias Texture = SDL_Texture*;
 
+/**
+Upload a surface to a renderer's texture space
+
+throws: SDLException
+*/
 Texture fromSurface(Renderer renderer, Surface surface) {
     return enforce(SDL_CreateTextureFromSurface(renderer, surface), new SDLException);
 }
 
+/**
+Query the size of a texture
+
+throws: SDLException
+*/
 int width(Texture texture) {
     int result;
     sdlEnforce(SDL_QueryTexture(texture, null, null, &result, null));
@@ -50,6 +70,7 @@ int width(Texture texture) {
     return result;
 }
 
+///ditto
 int height(Texture texture) {
     int result;
     sdlEnforce(SDL_QueryTexture(texture, null, null, null, &result));
@@ -57,6 +78,7 @@ int height(Texture texture) {
     return result;
 }
 
+///ditto
 Rect whole(Texture texture) {
     int width, height;
     sdlEnforce(SDL_QueryTexture(texture, null, null, &width, &height));
@@ -64,54 +86,73 @@ Rect whole(Texture texture) {
     return Rect(0, 0, width, height);
 }
 
+/**
+Copy (some part of) the texture onto the renderer at x,y or rescale it
+into the destination space.
+
+throws: SDLException
+*/
 void renderCopy(Renderer renderer, Texture texture, int x, int y) {
     Rect src = Rect(0, 0, 0, 0);
     sdlEnforce(SDL_QueryTexture(texture, null, null, &src.w, &src.h));
     renderCopy(renderer, texture, &src, x, y);
 }
 
+///ditto
 void renderCopy(Renderer renderer, Texture texture, Rect src, int x, int y) {
     renderCopy(renderer, texture, &src, x, y);
 }
 
+///ditto
 void renderCopy(Renderer renderer, Texture texture, Rect* src, int x, int y) {
     Rect dst = Rect(x, y, src.w, src.h);
     sdlEnforce(SDL_RenderCopy(renderer, texture, src, &dst));
 }
 
+///ditto
 void renderCopy(Renderer renderer, Texture texture, Rect dst) {
     renderCopy(renderer, texture, &dst);
 }
 
+///ditto
 void renderCopy(Renderer renderer, Texture texture, Rect* dst) {
     Rect src = Rect(0, 0, 0, 0);
     sdlEnforce(SDL_QueryTexture(texture, null, null, &src.w, &src.h));
     sdlEnforce(SDL_RenderCopy(renderer, texture, &src, dst));
 }
 
+///ditto
 void renderCopy(Renderer renderer, Texture texture, Rect src, Rect dst) {
     renderCopy(renderer, texture, &src, &dst);
 }
 
+///ditto
 void renderCopy(Renderer renderer, Texture texture, Rect* src, Rect dst) {
     renderCopy(renderer, texture, src, &dst);
 }
 
+///ditto
 void renderCopy(Renderer renderer, Texture texture, Rect src, Rect* dst) {
     renderCopy(renderer, texture, &src, dst);
 }
 
+///ditto
 void renderCopy(Renderer renderer, Texture texture, Rect* src, Rect* dst) {
     sdlEnforce(SDL_RenderCopy(renderer, texture, src, dst));
 }
 
-
+///The SDL surface (reference) type
 alias Surface = SDL_Surface*;
 
+///Query the size of a surface
 int width(in Surface s) { return s.w; }
+
+///ditto
 int height(in Surface s) { return s.h; }
+
+///ditto
 Rect rect(in Surface s) { return Rect(0, 0, s.width, s.height); }
-SClip whole(Surface s) { return SClip(s, s.rect); }
+
 
 /* Painting */
 
@@ -137,27 +178,27 @@ uint mapRGB(Surface s, ubyte[3] color ...) {
     return SDL_MapRGB(s.format, color[0], color[1], color[2]);
 }
 
+///Free surface
 void free(Surface s)
 {
     SDL_FreeSurface(s);
 }
 
-SClip clip()(Surface surface, Rect r) {
-    return SClip(surface, r);
-}
-
-SClip clip(T...)(Surface surface, T t) if(is(typeof(Rect(t)) == Rect)) {
-    return SClip(surface, Rect(t));
-}
 
 /* Loading */
 
+/**
+Load a BMP
+
+throws: SDLException
+*/
 Surface loadBMP(string filename) {
     return enforce(
         SDL_LoadBMP(toStringz(filename)), new SDLException("Failed to load Bitmap")
     );
 }
 
+///ditto
 Surface loadBMP(ubyte[] rawBytes) {
     return enforce(
         SDL_LoadBMP_RW(SDL_RWFromMem(rawBytes.ptr, cast(int)rawBytes.length), 0)
@@ -178,6 +219,7 @@ int height(Rect r) { return r.h; }
 int right(Rect r) { return r.x + r.w - 1; }
 int bottom(Rect r) { return r.y + r.h - 1; }
 
+///Returns true iff r contains the point x,y
 bool contains(Rect r, int tx, int ty) {
     return tx >= r.x && tx <= r.right && ty >= r.y && ty <= r.bottom;
 }
@@ -238,7 +280,7 @@ Rect absoluteSubrect(Rect major, Rect minor) {
 }
 
 /**
-The rect that conatins only and all of the points that are in both
+The rect that contains only and all of the points that are in both
 a and b.
 */
 Rect overlap(Rect a, Rect b) {
@@ -256,117 +298,3 @@ bool collide(Rect r1, Rect r2) {
     return true;
 }
 
-/**
-This structure represents a part of a Surface. Many operations that work
-on Surfaces also work on Clips.
-
-The standard way to create a Clip is Surface's clip function or whole-
-property.
-
-When some operation needs a Clip but you want to give it a whole Surface
-just use the Surface's whole property.
-*/
-struct SClip {
-    Surface sur;
-    Rect rect;
-
-    /**
-    The width and height of this Clip.
-    */
-    @property int width() { return rect.width; }
-    @property int height() { return rect.height; } ///ditto
-
-    /**
-    Get a subclip of this one using relative coordinates.
-    */
-    SClip clip()(Rect r) {
-        return Clip(sur, absoluteSubrect(rect, r));
-    }
-
-    ///ditto
-    SClip clip(T...)(T t) if(is(typeof(Rect(t)) == Rect)) {
-        return clip(Rect(t));
-    }
-}
-
-/**
-Blit clip c onto a Surface or another clip.
-*/
-void blitTo(SClip src, Surface dst, int x, int y) {
-    src.sur.blit(src.rect, dst, x, y);
-}
-
-///ditto
-void blitTo(SClip src, SClip dst, int x, int y) {
-    src.sur.blit(maximalBounds(src.rect, dst.rect.width - x, dst.rect.height - y),
-        dst.sur, x, y);
-}
-
-/**
-Fill the whole clip with one color.
------
-//Fill the whole surface black.
-surface.whole.fill(0, 0, 0);
------
-*/
-void fill(SClip c, ubyte[3] color...) {
-    c.sur.fillRect(c.rect, color);
-}
-
-/**
-This struct generates clips in a tileset like manner.
-
-Use opIndex() to get the n-th Clip or opSlice() to get
-the whole Clip[].
-*/
-struct SClipper {
-    Surface src;
-    int width, height;
-    private int clipsPerLine;
-
-    /**
-    Construct a clipper that generates Clips of the
-    Surface s and size w*h.
-    */
-    this(Surface s, int w, int h) {
-        src = s;
-        width = w;
-        height = h;
-        clipsPerLine = cast(int) floor((0.0 + src.width) / width);
-    }
-
-    /**
-    How many Clips are there?
-    */
-    @property
-    int count() {
-        int clipsPerLine = cast(int) floor((0.0 + src.width) / width);
-        int clipsPerColumn = cast(int) floor((0.0 + src.height) / height);
-        return clipsPerLine * clipsPerColumn;
-    }
-
-    int opDollar(){
-        return count;
-    }
-
-    SClip opIndex(int index) {
-        int x = index % clipsPerLine;
-        int y = (index - x) / clipsPerLine;
-        auto r = Rect(x * width, y * height, width, height);
-        return SClip(src, r);
-    }
-
-    SClip[] opSlice() {
-        return opSlice(0, opDollar());
-    }
-
-    SClip[] opSlice(int st, int end) {
-        SClip[] list;
-        foreach(i; st .. end) {
-            list ~= opIndex(i);
-        }
-        return list;
-    }
-
-
-}

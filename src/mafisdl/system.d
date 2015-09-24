@@ -22,6 +22,11 @@ class SDLException : Exception {
     }
 }
 
+/**
+A enforce-like function which ensures the return value is not -1.
+
+throws: SDLException
+*/
 T sdlEnforce(T)(T t) if(is(typeof( { T t; return t == -1;} ))) {
     if(t == -1) {
         throw new SDLException;
@@ -31,21 +36,21 @@ T sdlEnforce(T)(T t) if(is(typeof( { T t; return t == -1;} ))) {
 
 
 /**
- Initialize all SDL-Subsystems
+Initialize all SDL-Subsystems
 
- throws: SDLException on failure
- */
+throws: SDLException on failure
+*/
 void initSDL() {
     initSDL(SDL_INIT_EVERYTHING);
 }
 
 /**
- Initialize SDL using the bitflags
+Initialize SDL using the bitflags
 
- throws: SDLException on failure
+throws: SDLException on failure
 
- see_also: Subsystem
- */
+see_also: Subsystem
+*/
 void initSDL(Uint32 code) {
     debug writefln("init(%s)",code);
 
@@ -63,17 +68,31 @@ void initSDL(Uint32 code) {
     }
 }
 
+/**
+The SDL reference type used to represent a window of the
+host gui environment.
+
+It is a SDL_Window*
+*/
 alias Window = SDL_Window*;
 
+/**
+Create a new window with the given name, coordinates (or centered on the srceen), size and flags.
+For flags, visit SDL documentation for SDL_CreateWindow.
+*/
 Window createWindow(string name, int x, int y, int width, int height, uint flags = 0) {
     return SDL_CreateWindow(toStringz(name), x, y, width, height, flags);
 }
 
+/** ditto */
 Window createCenteredWindow(string name, int width, int height, uint flags = 0) {
     return createWindow(name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         width, height, flags);
 }
 
+/**
+Delay the execution of the program by (at least) the given milliseconds.
+*/
 void delay(long ms)
 in {
     assert(ms > 0);
@@ -81,15 +100,10 @@ in {
     SDL_Delay(cast(uint) ms);
 }
 
+/**
+Get the number of already passed ticks (ms).
+*/
 alias SDL_GetTicks getTicks;
-
-
-/*shared*/ static ~this() {
-    if( /*activated && */ SDL_WasInit(SDL_INIT_EVERYTHING) ) {
-        SDL_Quit();
-        debug writeln("\nSDL_Quit()");
-    } else debug writeln("\nSDL already shut down.");
-}
 
 version(unittest) static this() {
     initSDL();

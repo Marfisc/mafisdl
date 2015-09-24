@@ -42,7 +42,7 @@ bool[] getKeyboardState() {
 
 
 /**
- This struct represents the a joystick.
+ This struct represents a joystick.
 
  You can use this struct to query information about the joysticks connected
  to this computer. Don't forget to properly close it.
@@ -68,6 +68,7 @@ struct Joystick {
         this.joyptr = somePtr;
     }+/
 
+    ///open a new joystick connection for the given index
     this(int index)
     in {
         assert(index >= 0);
@@ -77,6 +78,7 @@ struct Joystick {
         joyptr = SDL_JoystickOpen(index);
     }
 
+    ///Get the state of the given axis
     short getAxis(int no)
     in {
         assert(no >= 0);
@@ -85,6 +87,7 @@ struct Joystick {
         return SDL_JoystickGetAxis(joyptr, no);
     }
 
+    ///Get the state of the given button
     short getButton(int no)
     in {
         assert(no >= 0);
@@ -93,6 +96,7 @@ struct Joystick {
         return cast(bool) SDL_JoystickGetButton(joyptr, no);
     }
 
+    ///Get the state of the given hat
     short getHat(int no)
     in {
         assert(no >= 0);
@@ -101,6 +105,7 @@ struct Joystick {
         return SDL_JoystickGetHat(joyptr, no);
     }
 
+    ///Get the state of the given ball
     Tuple!(int,int) getBall(int no) {
         int x, y;
         if(SDL_JoystickGetBall(joyptr, no, &x, &y) == -1) {
@@ -113,6 +118,7 @@ struct Joystick {
         SDL_JoystickEventState(SDL_ENABLE);
     }
 
+    ///Close
     void close() {
         SDL_JoystickClose(joyptr);
         joyptr = null;
