@@ -3,7 +3,7 @@ module mafisdl.audio;
 import mafisdl.system;
 
 import std.string;
-import std.c.stdlib, std.c.string;
+import core.stdc.stdlib, core.stdc.string;
 import std.algorithm: min;
 debug import std.stdio;
 
