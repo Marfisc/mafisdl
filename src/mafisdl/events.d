@@ -16,11 +16,12 @@ alias SDL_BUTTON_RIGHT    rightButton; /// ditto
 alias SDL_BUTTON_MIDDLE   middleButton; /// ditto
 
 
-//These are all (documented) Events (21.10.10)
+//These are all (documented) Events
 mixin aliasEvent!("QuitEvent");
 mixin aliasEvent!("KeyboardEvent");
 mixin aliasEvent!("MouseMotionEvent");
 mixin aliasEvent!("MouseButtonEvent");
+mixin aliasEvent!("MouseWheelEvent");
 mixin aliasEvent!("JoyAxisEvent");
 mixin aliasEvent!("JoyBallEvent");
 mixin aliasEvent!("JoyHatEvent");
@@ -124,6 +125,7 @@ void eventLoop(T)(T that) {
                 mixin(caseOnEvent!("SDL_KEYDOWN", "eventKeyDown"));
                 mixin(caseOnEvent!("SDL_KEYUP", "eventKeyUp"));
                 mixin(caseOnEvent!("SDL_MOUSEMOTION", "motion"));
+                mixin(caseOnEvent!("SDL_MOUSEWHEEL", "wheel"));
                 mixin(caseOnEvent!("SDL_MOUSEBUTTONUP", "eventMouseButtonUp"));
                 mixin(caseOnEvent!("SDL_MOUSEBUTTONDOWN", "eventMouseButtonDown"));
                 mixin(caseOnEvent!("SDL_JOYAXISMOTION", "jaxis"));
