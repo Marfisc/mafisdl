@@ -56,15 +56,20 @@ struct RenderedTextBuffer(size_t n) {
         sdlColor.b = color[2];
         sdlColor.a = color[3];
 
-        Surface surface = TTF_RenderUTF8_Blended(font, &buffer[0], sdlColor);
-        if(!surface) throw new SDLTTFException;
+        Surface surface = null;
+        if(len != 0) {
+            surface = TTF_RenderUTF8_Blended(font, &buffer[0], sdlColor);
+            if(!surface) throw new SDLTTFException;
+        }
 
-        Texture newTexture = fromSurface(display, surface);
+        Texture newTexture = null;
+        if(surface) newTexture = fromSurface(display, surface);
+
         if(texture) {
             SDL_DestroyTexture(texture);
         }
         texture = newTexture;
-        free(surface);
+        if(surface) free(surface);
     }
 }
 
