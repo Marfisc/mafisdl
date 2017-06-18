@@ -30,6 +30,7 @@ mixin aliasEvent!("UserEvent");
 mixin aliasEvent!("SysWMEvent");
 mixin aliasEvent!("TextInputEvent");
 mixin aliasEvent!("TextEditingEvent");
+mixin aliasEvent!("WindowEvent");
 
 /**
 The SDL event type. All SDL_XEvent types are aliased to XEvent.
