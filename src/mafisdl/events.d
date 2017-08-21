@@ -137,7 +137,7 @@ void eventLoop(T)(T that) {
                 mixin(caseOnEvent!("SDL_USEREVENT", "user"));
                 mixin(caseOnEvent!("SDL_SYSWMEVENT", "syswm"));
                 mixin(caseOnEvent!("SDL_TEXTINPUT", "text"));
-                mixin(caseOnEvent!("SDL_TEXTINPUT", "edit"));
+                mixin(caseOnEvent!("SDL_TEXTEDITING", "edit"));
                 mixin(caseOnEvent!("SDL_WINDOWEVENT", "window"));
             default: //has to be there even if empty
                 static if(is(typeof(that.onOther(Event.init)))) {
