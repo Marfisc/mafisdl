@@ -245,8 +245,8 @@ relative to major.
 */
 Rect subrect(Rect major, Rect minor) {
     return Rect(max(0, minor.x), max(0, minor.y),
-        min(minor.width, major.width  - minor.x),
-        min(minor.height, major.height - minor.y));
+        min(minor.width, major.width  - minor.x, major.width),
+        min(minor.height, major.height - minor.y, major.height));
 }
 
 unittest {
@@ -284,7 +284,11 @@ The rect that contains only and all of the points that are in both
 a and b.
 */
 Rect overlap(Rect a, Rect b) {
-    return absoluteSubrect(a, relative(a, b));
+    auto x = max(a.x, b.x);
+    auto y = max(a.y, b.y);
+    auto r = min(a.x + a.width, b.x + b.width);
+    auto d = min(a.y + a.height, b.y + b.height);
+    return Rect(x, y, r - x, d - y);
 }
 
 /**
