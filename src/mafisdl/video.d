@@ -14,7 +14,7 @@ alias Renderer = SDL_Renderer*;
 
 ///Create the renderer for the given window
 Renderer createRenderer(Window window, uint flags = 0) {
-    return SDL_CreateRenderer(window, -1, flags);
+    return SDL_CreateRenderer(window, -1, cast(SDL_RendererFlags) flags);
 }
 
 ///Set the drawing colour for the given renderer

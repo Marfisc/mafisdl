@@ -81,7 +81,7 @@ Create a new window with the given name, coordinates (or centered on the srceen)
 For flags, visit SDL documentation for SDL_CreateWindow.
 */
 Window createWindow(string name, int x, int y, int width, int height, uint flags = 0) {
-    return SDL_CreateWindow(toStringz(name), x, y, width, height, flags);
+    return SDL_CreateWindow(toStringz(name), x, y, width, height, cast(SDL_WindowFlags) flags);
 }
 
 /** ditto */
