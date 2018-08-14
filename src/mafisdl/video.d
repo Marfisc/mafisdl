@@ -245,8 +245,8 @@ relative to major.
 */
 Rect subrect(Rect major, Rect minor) {
     return Rect(max(0, minor.x), max(0, minor.y),
-        min(minor.width, major.width  - minor.x, major.width),
-        min(minor.height, major.height - minor.y, major.height));
+        min(minor.width, major.width  - minor.x, major.width).max(0),
+        min(minor.height, major.height - minor.y, major.height).max(0));
 }
 
 unittest {
@@ -288,7 +288,7 @@ Rect overlap(Rect a, Rect b) {
     auto y = max(a.y, b.y);
     auto r = min(a.x + a.width, b.x + b.width);
     auto d = min(a.y + a.height, b.y + b.height);
-    return Rect(x, y, r - x, d - y);
+    return Rect(x, y, max(0, r - x), max(0, d - y));
 }
 
 /**
