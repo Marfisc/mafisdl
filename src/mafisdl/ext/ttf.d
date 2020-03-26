@@ -33,9 +33,8 @@ void freeFont(Font font) {
     font = null;
 }
 
-struct RenderedTextBuffer(size_t n) {
-    char[n + 1] buffer;
-    size_t len;
+struct RenderedTextBuffer {
+    char[] buffer, currentText;
     Texture texture;
 
     void setText(Renderer display, Font font, const char[] text, ubyte[3] color...) {
@@ -43,12 +42,15 @@ struct RenderedTextBuffer(size_t n) {
     }
 
     void setText(Renderer display, Font font, const char[] text, ubyte[4] color...) {
-        if(text == buffer[0..len]) return;
+        if(text == currentText) return;
 
-        len = min(text.length, n);
-        buffer[0..len] = text[0..len];
+        if(buffer.length < text.length + 1) {
+            buffer.length = text.length + 1;
+        }
+        buffer[0..text.length] = text[];
+        currentText = buffer[0..text.length];
         //make buffer string zero-terminated
-        buffer[len] = '\0';
+        buffer[text.length] = '\0';
 
         SDL_Color sdlColor;
         sdlColor.r = color[0];
@@ -57,7 +59,7 @@ struct RenderedTextBuffer(size_t n) {
         sdlColor.a = color[3];
 
         Surface surface = null;
-        if(len != 0) {
+        if(currentText.length != 0) {
             surface = TTF_RenderUTF8_Blended(font, &buffer[0], sdlColor);
             if(!surface) throw new SDLTTFException;
         }
